@@ -30,7 +30,7 @@ header h1 small{font:500 11px var(--mono);color:var(--mid);letter-spacing:.12em;
 .hint{font:400 12px var(--mono);color:var(--mid)}
 kbd{font:500 11px var(--mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--paper);color:var(--ink)}
 .stage{flex:1;min-height:0;position:relative;display:grid;place-items:center;overflow:hidden}
-canvas{display:block;max-width:100%;touch-action:manipulation}
+canvas{display:block;max-width:100%;touch-action:none}
 nav{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-block:6px 12px}
 nav span{font:500 11px var(--mono);color:var(--mid);letter-spacing:.1em;text-transform:uppercase;margin-right:4px}
 button{font-family:inherit}
@@ -43,7 +43,7 @@ button{font-family:inherit}
 button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
 /* the zoomed section */
-.scrim{position:absolute;inset:0;display:grid;place-items:center;padding:10px 0;background:rgba(228,227,223,.55);backdrop-filter:blur(2px)}
+.scrim{position:absolute;inset:0;z-index:3;display:grid;place-items:center;padding:10px 0;background:rgba(228,227,223,.55);backdrop-filter:blur(2px)}
 .sheet{position:relative;width:min(720px,100%);max-height:100%;overflow:auto;box-sizing:border-box;background:var(--paper);border:1px solid var(--line);
   box-shadow:0 1px 0 var(--line),0 18px 40px -18px rgba(28,28,30,.35);padding:22px clamp(18px,4vw,40px) 30px;animation:zoomIn .35s cubic-bezier(.2,.8,.2,1)}
 @keyframes zoomIn{from{opacity:0;transform:scale(.94) translateY(8px)}}
@@ -137,6 +137,16 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset
 .seg input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2px}
 .err{margin:0;font-size:14px;color:var(--ink);border-left:2px solid var(--ink);padding-left:10px}
 .preview{white-space:pre-wrap;font-size:14px}
+.zoomctl{position:absolute;right:max(6px, env(safe-area-inset-right, 0px));bottom:8px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.zoomctl button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--paper);font:500 19px/1 var(--body);color:var(--ink);cursor:pointer;display:grid;place-items:center;padding:0;box-shadow:0 4px 10px -6px rgba(28,28,30,.4)}
+.zoomctl button:hover{border-color:var(--ink)}
+@media (max-width:560px){
+  nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-block:6px 10px}
+  nav::-webkit-scrollbar{display:none}
+  nav .chip,nav span{flex:none}
+  header h1{font-size:24px}
+  header h1 small{display:none}
+}
 .langpick{display:grid;gap:9px;margin:14px 0 18px;padding:12px 14px;border:1px solid var(--ink)}
 .lp-q{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mid)}
 .lp-row{display:flex;gap:8px;flex-wrap:wrap}
@@ -159,6 +169,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset
   </header>
   <div class="stage" id="stage">
     <canvas id="c" role="img" data-ta="aria-label:canvasAria" aria-label="A CV lying flat on a desk. A small character walks over its sections; stand on a section and press Enter or click to explore it. The buttons below open each section directly."></canvas>
+    <div class="zoomctl" role="group" data-ta="aria-label:zoomAria" aria-label="Zoom"><button type="button" id="zIn" data-ta="aria-label:zoomIn" aria-label="Zoom in">+</button><button type="button" id="zOut" data-ta="aria-label:zoomOut" aria-label="Zoom out">−</button><button type="button" id="zFit" data-ta="aria-label:zoomFit" aria-label="Fit the whole CV">⤢</button></div>
     <div class="scrim" id="scrim" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
   </div>
   <nav data-ta="aria-label:navAria" aria-label="Open a section">
@@ -188,6 +199,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset
       <dt data-th="k2dt"><kbd>Enter</kbd>&nbsp;or click</dt><dd data-t="k2dd">Jump into the section you're standing on</dd>
       <dt><kbd>F</kbd></dt><dd data-t="k3dd">Flip to the business card and back</dd>
       <dt><kbd>Esc</kbd></dt><dd data-t="k4dd">Close a section</dd>
+      <dt data-t="k5dt">Pinch or scroll</dt><dd data-t="k5dd">Zoom in and out of the CV</dd>
     </dl>
     <p class="touch" id="touchHint" data-t="touch" hidden>On a touchscreen: tap the paper to walk there, then tap the section again to jump in.</p>
     <div class="actions"><button class="btn primary" id="playBtn" data-t="play">Play</button><button class="btn ghost" id="pdfBtn" data-t="viewPdf">View the CV as PDF</button></div>
@@ -414,7 +426,7 @@ const UI={
   startLede:"Walk across my CV, jump into a section to read it, and flip the page over for my business card.",
   k1dt:'<kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd>&nbsp;or&nbsp;<kbd>WASD</kbd>',k1dd:"Walk, or click anywhere on the paper",
   k2dt:'<kbd>Enter</kbd>&nbsp;or click',k2dd:"Jump into the section you're standing on",k3dd:"Flip to the business card and back",k4dd:"Close a section",
-  touch:"On a touchscreen: tap the paper to walk there, then tap the section again to jump in.",
+  touch:"On a touchscreen: tap the paper to walk there, tap the section again to jump in, and pinch to zoom.",
   play:"Play",viewPdf:"View the CV as PDF",msgLink:"Send me a review or a job offer →",
   pdfAria:"CV as PDF",dl:"Download PDF",openTab:"Open in a new tab ↗",close:"Close",pdfStatus:"Scroll to read both pages.",pages:"2 pages",
   img1:"CV page 1: contact details, profile, experience at Voxsight and Doctolib, and projects",
@@ -434,7 +446,7 @@ const UI={
   errName:"Add your name.",errEmail:"Add a valid email address, like name@company.com.",errBody:"Write a message before sending.",
   subjJob:"Job offer for Shalom Antony, from ",subjReview:"Review for Shalom Antony, from ",subjectLabel:"Subject: ",fromName:"Shalom's interactive CV",
   explore:"Explore {x}",cloudKeys:"press Enter or click",cloudTouch:"tap to jump in",
-  folioFront:"p. 1 / 2 · F to flip",folioBack:"p. 2 / 2 · F to flip",company:"Your company goes here ;)",
+  folioFront:"p. 1 / 2",folioBack:"p. 2 / 2",flipF:"Press F to flip the page",flipFBack:"Press F to flip back to the CV",flipTap:"Tap here to flip the page",flipTapBack:"Tap here to go back to the CV",company:"Your company goes here ;)",
   backCV:"← Back to the CV",
   experience:"Experience",expLede:"Two internships in digital health, one in CRM operations and one in consulting.",
   education:"Education",eduLede:"Grande École programme at Audencia, after a BA and an MA at Manipal.",
@@ -446,6 +458,7 @@ const UI={
   projects:"Projects",projLede:"Business school competitions and case studies, from strategy and ethics to digital business models.",
   hobbies:"Hobbies",soon:"link coming soon",
   referrals:"Referrals",refLede:"The managers who supervised my two internships.",seeIntern:"See the {org} internship →",refSmall:"Ask me for their contact details.",
+  k5dt:"Pinch or scroll",k5dd:"Zoom in and out of the CV",zoomAria:"Zoom",zoomIn:"Zoom in",zoomOut:"Zoom out",zoomFit:"Fit the whole CV",
   docTitle:"Shalom Antony · Interactive CV"},
  fr:{sub:"CV · visite interactive",
   hint:'<kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> ou <kbd>ZQSD</kbd> pour marcher · <kbd>Entrée</kbd> pour explorer · <kbd>F</kbd> pour retourner',
@@ -456,7 +469,7 @@ const UI={
   startLede:"Promenez-vous sur mon CV, sautez dans une rubrique pour la lire, et retournez la page pour découvrir ma carte de visite.",
   k1dt:'<kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd>&nbsp;ou&nbsp;<kbd>ZQSD</kbd>',k1dd:"Marcher, ou cliquer n’importe où sur la feuille",
   k2dt:'<kbd>Entrée</kbd>&nbsp;ou clic',k2dd:"Sauter dans la rubrique où vous vous trouvez",k3dd:"Retourner la page : carte de visite, puis CV",k4dd:"Fermer une rubrique",
-  touch:"Sur écran tactile : touchez la feuille pour y marcher, puis touchez à nouveau la rubrique pour y entrer.",
+  touch:"Sur écran tactile : touchez la feuille pour y marcher, touchez à nouveau la rubrique pour y entrer, et pincez pour zoomer.",
   play:"Jouer",viewPdf:"Voir le CV en PDF",msgLink:"M’envoyer un avis ou une offre d’emploi →",
   pdfAria:"CV en PDF",dl:"Télécharger le PDF",openTab:"Ouvrir dans un nouvel onglet ↗",close:"Fermer",pdfStatus:"Faites défiler pour lire les deux pages.",pages:"2 pages",
   img1:"Page 1 du CV : coordonnées, profil, expériences chez Voxsight et Doctolib, et projets",
@@ -476,7 +489,7 @@ const UI={
   errName:"Indiquez votre nom.",errEmail:"Indiquez une adresse e-mail valide, par exemple nom@entreprise.com.",errBody:"Écrivez un message avant d’envoyer.",
   subjJob:"Offre d’emploi pour Shalom Antony, de la part de ",subjReview:"Avis pour Shalom Antony, de la part de ",subjectLabel:"Objet : ",fromName:"CV interactif de Shalom",
   explore:"Explorer : {x}",cloudKeys:"Entrée ou clic",cloudTouch:"touchez pour entrer",
-  folioFront:"p. 1 / 2 · F pour retourner",folioBack:"p. 2 / 2 · F pour retourner",company:"Votre entreprise ici ;)",
+  folioFront:"p. 1 / 2",folioBack:"p. 2 / 2",flipF:"Appuyez sur F pour retourner la page",flipFBack:"Appuyez sur F pour revenir au CV",flipTap:"Touchez ici pour retourner la page",flipTapBack:"Touchez ici pour revenir au CV",company:"Votre entreprise ici ;)",
   backCV:"← Retour au CV",
   experience:"Expérience",expLede:"Deux stages dans la santé numérique : l’un en CRM, l’autre en conseil.",
   education:"Formation",eduLede:"Programme Grande École à Audencia, après un Bachelor et un Master à Manipal.",
@@ -488,6 +501,7 @@ const UI={
   projects:"Projets",projLede:"Concours et études de cas en école de commerce, de la stratégie et l’éthique aux modèles économiques digitaux.",
   hobbies:"Loisirs",soon:"lien bientôt disponible",
   referrals:"Références",refLede:"Les managers qui m’ont encadrée pendant mes deux stages.",seeIntern:"Voir le stage chez {org} →",refSmall:"Demandez-moi leurs coordonnées.",
+  k5dt:"Pincer ou molette",k5dd:"Zoomer et dézoomer sur le CV",zoomAria:"Zoom",zoomIn:"Zoomer",zoomOut:"Dézoomer",zoomFit:"Voir tout le CV",
   docTitle:"Shalom Antony · CV interactif"}};
 const DATA={en:{EXP:EXP_EN,EDU:EDU_EN,LEVEL_NAMES:LEVEL_NAMES_EN,SKILLS:SKILLS_EN,PROJECTS:PROJECTS_EN,REFS:REFS_EN,HOBBIES:HOBBIES_EN,ROLES:ROLES_EN,PROFILE:PROFILE_EN},
             fr:{EXP:EXP_FR,EDU:EDU_FR,LEVEL_NAMES:LEVEL_NAMES_FR,SKILLS:SKILLS_FR,PROJECTS:PROJECTS_FR,REFS:REFS_FR,HOBBIES:HOBBIES_FR,ROLES:ROLES_FR,PROFILE:PROFILE_FR}};
@@ -519,10 +533,13 @@ const BODYF='"Instrument Sans", system-ui, sans-serif';
 const INK="#1c1c1e",MID="#6f6f74",LINE="#d2d1cc",PAPER="#fbfbf9",SOFT="#efeeea",DESK="#e4e3df",SIDE1="#e3e2dd",SIDE2="#d3d2cd";
 const DISP='"Instrument Serif", Georgia, serif',MONO='"IBM Plex Mono", ui-monospace, monospace';
 const cv=document.getElementById("c"),stage=document.getElementById("stage"),g=cv.getContext("2d");
-const W=1000,H=660,F=760,CX=500,CY=318;
+let W=1000,H=660,CX=500,CY=330;const F=760;var NEEDFIT=true;
 let cssScale=1;
-function resize(){const r=stage.getBoundingClientRect(),dpr=devicePixelRatio||1;cssScale=Math.min(r.width/W,r.height/H);
-  cv.style.width=W*cssScale+"px";cv.style.height=H*cssScale+"px";cv.width=Math.round(W*cssScale*dpr);cv.height=Math.round(H*cssScale*dpr);}
+/* the canvas takes the stage's real shape: wide on a computer, tall on a phone; its drawing units keep text a readable size */
+function resize(){const r=stage.getBoundingClientRect(),dpr=devicePixelRatio||1;if(r.width<20||r.height<20)return;const a=r.width/r.height;
+  if(a>=1){H=660;W=Math.round(660*a);}else{W=520;H=Math.round(520/a);}
+  CX=W/2;CY=H/2;cssScale=r.width/W;
+  cv.style.width=r.width+"px";cv.style.height=r.height+"px";cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);NEEDFIT=true;}
 addEventListener("resize",resize);resize();
 try{new ResizeObserver(()=>resize()).observe(stage);}catch(_){}
 
@@ -547,6 +564,26 @@ function paperXf(P){const a=flipA,Q=FACE==="f"?flipZ(P,-a):flipZ(yawC(P,-Math.PI
 function faceNow(){if(mode!=="flip")return side==="front"?"f":"b";const a=flipA,ps=a/2,v=[CP[0]-PW/2,CP[1]-Math.sin(a)*PW/2,CP[2]-PD/2];
   return Math.sin(a)*Math.cos(ps)*v[0]+Math.cos(a)*v[1]+Math.sin(a)*Math.sin(ps)*v[2]>0?"f":"b";}
 const sheetRect=()=>side==="front"?{x0:0,x1:PW,z0:0,z1:PD}:BACK;
+/* find the camera that shows a whole sheet, centred, with a margin on every side */
+let HOMEV={T:[3,0,4.25],D:11.4,pitch:.92,yaw:.42},BACKV={T:[PW/2,0,PD/2+.2],D:10.6,pitch:1.04,yaw:.28};
+function fitCam(r,pitch,yaw){const save={T:cam.T.slice(),D:cam.D,pitch:cam.pitch,yaw:cam.yaw},sp=par;par=0;
+  cam.pitch=pitch;cam.yaw=yaw;cam.T=[(r.x0+r.x1)/2,0,(r.z0+r.z1)/2];cam.D=12;
+  const pts=[[r.x0,0,r.z0],[r.x1,0,r.z0],[r.x1,0,r.z1],[r.x0,0,r.z1],[r.x0,-.06,r.z1],[r.x1,-.06,r.z1],[r.x1,-.06,r.z0],[r.x1,-.06,r.z1+.95],[r.x1-4,-.06,r.z1+.95]];
+  const mx=Math.max(14,W*.035),mt=Math.max(16,H*.05),mb=Math.max(14,H*.045);
+  for(let k=0;k<40;k++){setupCam();const ps=pts.map(pj);if(ps.some(p=>!p)){cam.D*=1.3;continue;}
+    const xs=ps.map(p=>p[0]),ys=ps.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+    const sc=Math.max((x1-x0)/(W-2*mx),(y1-y0)/(H-mt-mb));
+    const a=rayY((x0+x1)/2,(y0+y1)/2),b=rayY(W/2,mt+(H-mt-mb)/2);if(a&&b)cam.T=[cam.T[0]+(a[0]-b[0]),0,cam.T[2]+(a[2]-b[2])];
+    cam.D*=Math.pow(sc,.85);}
+  const out={T:cam.T.slice(),D:cam.D,pitch,yaw};Object.assign(cam,save);par=sp;setupCam();return out;}
+function refit(){const tall=H>W*1.1;HOMEV=tall?fitCam({x0:0,x1:PW,z0:0,z1:PD},1.2,.12):fitCam({x0:0,x1:PW,z0:0,z1:PD},.92,.42);BACKV=fitCam(BACK,1.04,tall?.12:.28);}
+/* zoom: 1 shows the whole sheet; above 1 the camera moves closer and follows the character */
+let zoom=1,pan=[0,0,0];const ZMAX=3.4;
+function setZoom(z){zoom=Math.min(ZMAX,Math.max(1,z));if(zoom<=1.01){zoom=1;pan=[0,0,0];}}
+function viewGoal(){const b=side==="back"?BACKV:HOMEV,r=sheetRect();let T=b.T.slice();
+  if(zoom>1){const f=side==="front"?Math.min(1,(zoom-1)*1.4):0;T=[T[0]+(ch.x-T[0])*f+pan[0],0,T[2]+(ch.z-T[2])*f+pan[2]];
+    T[0]=Math.min(r.x1,Math.max(r.x0,T[0]));T[2]=Math.min(r.z1,Math.max(r.z0,T[2]));}
+  return{T,D:b.D/zoom,pitch:b.pitch,yaw:b.yaw};}
 function pj(P){if(XF&&mode==="flip")P=paperXf(P);const d=[P[0]-CP[0],P[1]-CP[1],P[2]-CP[2]],z=dot(d,FW);if(z<.1)return null;return[CX+F*dot(d,R)/z,CY-F*dot(d,U)/z,z];}
 function rayY(sx,sy,h=0){const d=add(FW,add(mul(R,(sx-CX)/F),mul(U,(CY-sy)/F)));if(Math.abs(d[1])<1e-6)return null;const t=(h-CP[1])/d[1];return t>0?add(CP,mul(d,t)):null;}
 function poly(pts,fill,stroke,lw=1){const sp=pts.map(pj);if(sp.some(p=>!p))return null;g.beginPath();sp.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();
@@ -575,7 +612,7 @@ let mode="walk",mt=0,cur=null,focusIdx=null,target=null,autoGo=null,hover=null,a
 const keys=new Set();
 let side="front",flipA=0,flipFrom=0,flipTo=0,flipT=0,afterFlip=null,pendingFlip=false,frontPos=null;const FLIP_DUR=1.15;
 function flip(then){if(mode==="panel"){pendingFlip=true;closePanel();return;}if(mode!=="walk")return;
-  flipFrom=side==="front"?0:Math.PI;flipTo=Math.PI-flipFrom;flipT=0;mode="flip";mt=0;target=null;autoGo=null;keys.clear();afterFlip=then||null;}
+  setZoom(1);flipFrom=side==="front"?0:Math.PI;flipTo=Math.PI-flipFrom;flipT=0;mode="flip";mt=0;target=null;autoGo=null;keys.clear();afterFlip=then||null;}
 /* job titles: soft fade in and out, random order, no immediate repeats */
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 let roleQ=shuffle(ROLES.slice()),roleK=0,roleT0=performance.now()/1000;const ROLE_DUR=3.4,FADE=.75;
@@ -586,6 +623,8 @@ const secAt=(x,z)=>SECS.find(s=>x>=s.x0&&x<=s.x1&&z>=s.z0&&z<=s.z1)||null;
 const easeBack=x=>{x=Math.min(1,Math.max(0,x));return 1+2.70158*Math.pow(x-1,3)+1.70158*Math.pow(x-1,2);};
 
 function update(dt){
+  if(NEEDFIT){NEEDFIT=false;refit();if(!update.started){update.started=true;Object.assign(cam,{T:HOMEV.T.slice(),D:HOMEV.D,pitch:HOMEV.pitch,yaw:HOMEV.yaw});}}
+  if(mode==="walk"||mode==="exit"||mode==="flip"){if(ch.moving){pan[0]*=.9;pan[2]*=.9;}goal=viewGoal();}
   const k=1-Math.exp(-dt*(reduce?20:4.2));
   for(let i=0;i<3;i++)cam.T[i]+=(goal.T[i]-cam.T[i])*k;
   cam.D+=(goal.D-cam.D)*k;cam.pitch+=(goal.pitch-cam.pitch)*k;cam.yaw+=(goal.yaw-cam.yaw)*k;
@@ -711,7 +750,23 @@ function drawCloud(){cloudRect=null;cloudAct=null;const info=cloudInfo();if(!inf
 function render(){const dpr=cv.width/W;g.setTransform(dpr,0,0,dpr,0,0);
   XF=false;drawDesk();FACE=faceNow();const front=FACE==="f";drawPaper(front);
   if(!front)drawCard();else SECS.slice().sort((a,b)=>{const pa=pj([(a.x0+a.x1)/2,0,(a.z0+a.z1)/2]),pb=pj([(b.x0+b.x1)/2,0,(b.z0+b.z1)/2]);return(pb?pb[2]:0)-(pa?pa[2]:0);}).forEach(drawSection);
-  XF=false;drawChar();drawCloud();}
+  XF=false;drawFlipTag();drawChar();drawCloud();}
+/* the flip label: dark tag lying on the desk under the bottom-right corner of the sheet; click or tap it to flip */
+let flipTag=null,flipTagHover=false;
+function drawFlipTag(){flipTag=null;if(mode!=="walk"&&mode!=="exit")return;
+  const r=sheetRect(),label=t(coarse?(side==="back"?"flipTapBack":"flipTap"):(side==="back"?"flipFBack":"flipF"));
+  g.font=`600 19px ${BODYF}`;const wU=Math.min(400,g.measureText(label).width+80),hU=48,w=wU/100,h=hU/100;
+  const x1=r.x1,x0=x1-w,z0=r.z1+.38,z1=z0+h,y=-.058,t0=performance.now()/1000,pulse=reduce?0:(Math.sin(t0*3)+1)/2;
+  poly([[x0+.05,y,z0+.07],[x1+.05,y,z0+.07],[x1+.05,y,z1+.07],[x0+.05,y,z1+.07]],"rgba(28,28,30,.16)");
+  poly([[x0,y+.001,z0],[x1,y+.001,z0],[x1,y+.001,z1],[x0,y+.001,z1]],flipTagHover?PAPER:INK,INK,1.2);
+  onPage([x0,y+.002,z0],()=>{const fg=flipTagHover?INK:PAPER;g.fillStyle=fg;g.strokeStyle=fg;
+    // turning-page icon
+    g.lineWidth=2.6;g.beginPath();g.arc(30,hU/2,11,-.3,Math.PI*1.45);g.stroke();
+    g.beginPath();g.moveTo(41,hU/2-9);g.lineTo(42,hU/2+1);g.lineTo(33,hU/2-3);g.closePath();g.fill();
+    g.font=`600 19px ${BODYF}`;g.textBaseline="middle";g.textAlign="left";g.fillText(label,54,hU/2+1);});
+  if(!reduce){g.globalAlpha=.35*(1-pulse);const e=.04+pulse*.08;poly([[x0-e,y,z0-e],[x1+e,y,z0-e],[x1+e,y,z1+e],[x0-e,y,z1+e]],null,INK,1.2);g.globalAlpha=1;}
+  flipTag={x0,x1,z0,z1};}
+const onFlipTag=p=>flipTag&&p&&p[0]>=flipTag.x0-.05&&p[0]<=flipTag.x1+.05&&p[2]>=flipTag.z0-.05&&p[2]<=flipTag.z1+.05;
 let last=0;function frame(now){const dt=Math.min(.05,(now-(last||now))/1000);last=now;update(dt);render();requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
 
@@ -740,11 +795,29 @@ addEventListener("blur",()=>keys.clear());
 const toV=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/cssScale,(e.clientY-r.top)/cssScale];};
 cv.addEventListener("pointermove",e=>{mouse=toV(e);if(mode!=="walk")return;const p=rayY(mouse[0],mouse[1]);hover=p&&side==="front"?secAt(p[0],p[2]):null;
   const inCloud=cloudRect&&mouse[0]>=cloudRect[0]&&mouse[0]<=cloudRect[0]+cloudRect[2]&&mouse[1]>=cloudRect[1]&&mouse[1]<=cloudRect[1]+cloudRect[3];
-  cv.style.cursor=inCloud||(hover&&hover===active)?"pointer":p&&(r=>p[0]>=r.x0&&p[0]<=r.x1&&p[2]>=r.z0&&p[2]<=r.z1)(sheetRect())?"crosshair":"default";});
+  flipTagHover=!!(p&&onFlipTag([p[0],0,p[2]]))||false;
+  cv.style.cursor=inCloud||flipTagHover||(hover&&hover===active)?"pointer":p&&(r=>p[0]>=r.x0&&p[0]<=r.x1&&p[2]>=r.z0&&p[2]<=r.z1)(sheetRect())?"crosshair":"default";});
 cv.addEventListener("pointerleave",()=>{hover=null;mouse=null;});
-cv.addEventListener("click",e=>{if(mode!=="walk")return;const[x,y]=toV(e);
+/* pinch to zoom, two fingers to move around, wheel or trackpad to zoom on a computer */
+const ptrs=new Map();let pinch=null,gestureUntil=0;
+cv.addEventListener("pointerdown",e=>{ptrs.set(e.pointerId,toV(e));
+  if(ptrs.size===2&&mode==="walk"){const[a,b]=[...ptrs.values()];pinch={d:Math.max(20,Math.hypot(a[0]-b[0],a[1]-b[1])),z:zoom,m:[(a[0]+b[0])/2,(a[1]+b[1])/2]};target=null;autoGo=null;}});
+cv.addEventListener("pointermove",e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,toV(e));
+  if(pinch&&ptrs.size>=2){const[a,b]=[...ptrs.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]),m=[(a[0]+b[0])/2,(a[1]+b[1])/2];
+    setZoom(pinch.z*d/pinch.d);const p0=rayY(pinch.m[0],pinch.m[1]),p1=rayY(m[0],m[1]);
+    if(p0&&p1&&zoom>1){pan[0]+=p0[0]-p1[0];pan[2]+=p0[2]-p1[2];const lim=4;pan[0]=Math.max(-lim,Math.min(lim,pan[0]));pan[2]=Math.max(-lim,Math.min(lim,pan[2]));}
+    pinch.m=m;gestureUntil=performance.now()+400;}});
+const endPtr=e=>{ptrs.delete(e.pointerId);if(pinch&&ptrs.size<2){pinch=null;gestureUntil=performance.now()+400;}};
+["pointerup","pointercancel","pointerleave"].forEach(n=>cv.addEventListener(n,endPtr));
+cv.addEventListener("wheel",e=>{e.preventDefault();if(mode!=="walk")return;setZoom(zoom*Math.exp(-e.deltaY*(e.ctrlKey?.01:.0018)));},{passive:false});
+document.getElementById("zIn").onclick=()=>{if(mode==="walk")setZoom(zoom*1.45);};
+document.getElementById("zOut").onclick=()=>{if(mode==="walk")setZoom(zoom/1.45);};
+document.getElementById("zFit").onclick=()=>setZoom(1);
+cv.addEventListener("click",e=>{if(mode!=="walk"||performance.now()<gestureUntil)return;const[x,y]=toV(e);
   if(cloudRect&&x>=cloudRect[0]&&x<=cloudRect[0]+cloudRect[2]&&y>=cloudRect[1]&&y<=cloudRect[1]+cloudRect[3]){if(cloudAct)cloudAct();return;}
-  const p=rayY(x,y);if(!p)return;const s=side==="front"?secAt(p[0],p[2]):null;
+  const p=rayY(x,y);if(!p)return;
+  {const q=rayY(x,y,-.058);if(onFlipTag(q)){flipTagHover=false;flip();return;}}
+  const s=side==="front"?secAt(p[0],p[2]):null;
   if(s&&s===active){explore(s);return;}
   const r=sheetRect();if(p[0]>=r.x0&&p[0]<=r.x1&&p[2]>=r.z0&&p[2]<=r.z1){target={x:Math.min(r.x1-.15,Math.max(r.x0+.15,p[0])),z:Math.min(r.z1-.15,Math.max(r.z0+.15,p[2]))};autoGo=null;}});
 document.querySelector("nav").addEventListener("click",e=>{const b=e.target.closest("[data-sec]");if(!b)return;const s=byId(b.dataset.sec);
