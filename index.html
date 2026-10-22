@@ -1,5 +1,13 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Pink Room CV (Working Copy)</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Shalom Antony · Interactive CV</title>
+<meta name="description" content="Shalom Antony: Digital Business & Data, Nantes. Walk through my CV, open the PDF, or send me a job offer.">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -191,7 +199,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset
     <div class="bar"><span class="crumb">Contact</span><button class="back" data-close>Close</button></div>
     <h2 id="msgTitle">Send a review or a job offer</h2>
     <div id="msgFormWrap">
-      <p class="lede">Write your message here. It opens in your email app, addressed to <b>shalom.antony@audencia.com</b> and ready to send.</p>
+      <p class="lede" id="msgLede">Write your message here and it goes straight to my inbox. I reply from shalom.antony@audencia.com.</p>
       <form class="form" id="msgForm" novalidate>
         <fieldset class="seg"><legend>About</legend>
           <label><input type="radio" name="msgType" id="msgTypeJob" value="job" checked><span>Job offer</span></label>
@@ -199,17 +207,21 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset
         <div class="field"><label for="msgName">Your name</label><input id="msgName" name="name" autocomplete="name" required></div>
         <div class="field"><label for="msgEmail">Your email</label><input id="msgEmail" name="email" type="email" autocomplete="email" required></div>
         <div class="field"><label for="msgBody">Message</label><textarea id="msgBody" name="message" rows="5" required></textarea></div>
+        <input type="checkbox" name="botcheck" id="msgBot" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
         <p class="err" id="msgErr" hidden></p>
-        <div class="actions"><button class="btn primary" type="submit">Open in my email app</button></div>
+        <div class="actions"><button class="btn primary" type="submit" id="msgSend">Send message</button></div>
       </form>
     </div>
     <div id="msgDone" hidden>
-      <p class="lede" style="color:var(--ink)">Your email app should now show your message, addressed to Shalom. Press send there to deliver it.</p>
-      <p class="lede">If no email window opened, copy the address and the message below and send them from any email account.</p>
+      <div id="msgSent" hidden><p class="lede" style="color:var(--ink)">Message sent. Thank you! I'll reply to <b id="msgReplyTo"></b> as soon as I can.</p></div>
+      <div id="msgFallback" hidden><p class="lede" style="color:var(--ink)" id="msgFallbackLead">Your message is ready to send from your own email app.</p>
+        <p class="lede">If no email window opens, copy the address and the message below and send them from any email account.</p>
+        <div class="actions" style="margin-bottom:14px"><a class="btn primary" id="msgMailto" href="#" target="_blank" rel="noopener" style="text-decoration:none">Open in my email app</a></div></div>
+      <div id="msgCopy">
       <div class="rows">
         <div class="row"><b>To</b><span id="msgTo">shalom.antony@audencia.com</span><button class="copy" data-copy="msgTo">Copy</button></div>
         <div class="row"><b>Message</b><span class="preview" id="msgPreview"></span><button class="copy" data-copy="msgPreview">Copy</button></div>
-      </div>
+      </div></div>
       <div class="actions" style="margin-top:16px"><button class="btn ghost" id="msgEdit">Edit message</button><button class="btn primary" data-close>Done</button></div>
     </div>
   </div>
@@ -608,6 +620,7 @@ const LAYERS={start:document.getElementById("startLayer"),pdf:document.getElemen
 let layerOpen="start",layerBack=null,lastFocus=null;
 if(coarse)document.getElementById("touchHint").hidden=false;
 function showLayer(name,back=null){for(const k in LAYERS)LAYERS[k].hidden=k!==name;layerOpen=name;layerBack=back;keys.clear();
+  if(name==="msg"&&!document.getElementById("msgSent").hidden){document.getElementById("msgDone").hidden=true;document.getElementById("msgFormWrap").hidden=false;document.getElementById("msgSent").hidden=true;}
   if(name==="pdf")LAYERS.pdf.querySelectorAll("img[data-src]").forEach(im=>{if(!im.src)im.src=im.dataset.src;});
   if(name){const f=name==="msg"&&!document.getElementById("msgFormWrap").hidden?document.getElementById("msgName"):LAYERS[name].querySelector(".btn.primary,[data-close]");f&&f.focus({preventScroll:true});}
   else if(lastFocus&&document.contains(lastFocus))lastFocus.focus({preventScroll:true});}
@@ -629,18 +642,38 @@ dlBtn.onclick=async()=>{if(!downloads)return;dlStatus.textContent="Preparing the
 const TO="shalom.antony@audencia.com",msgForm=document.getElementById("msgForm"),msgErr=document.getElementById("msgErr");
 function composeMail(){const v=id=>document.getElementById(id).value.trim(),type=document.getElementById("msgTypeReview").checked?"review":"job",name=v("msgName"),email=v("msgEmail"),body=v("msgBody");
   const subject=(type==="job"?"Job offer":"Review")+" for Shalom Antony, from "+name;
-  const text=body+"\n\n"+name+"\n"+email;return{name,email,body,subject,text};}
-msgForm.addEventListener("submit",e=>{e.preventDefault();const m=composeMail();
+  const text=body+"\n\n"+name+"\n"+email;return{type,name,email,body,subject,text};}
+/* Web3Forms sends the message to Shalom's inbox. Paste the access key from web3forms.com between the quotes.
+   Without a key, or if sending fails, the visitor gets the email-app fallback instead. */
+const WEB3FORMS_KEY="PASTE_YOUR_ACCESS_KEY_HERE";
+const hasKey=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(WEB3FORMS_KEY.trim());
+if(!hasKey){document.getElementById("msgLede").innerHTML="Write your message here. It opens in your email app, addressed to <b>shalom.antony@audencia.com</b> and ready to send.";document.getElementById("msgSend").textContent="Open in my email app";}
+async function sendWeb3(m){try{const r=await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
+    body:JSON.stringify({access_key:WEB3FORMS_KEY.trim(),subject:m.subject,from_name:"Shalom's interactive CV",replyto:m.email,name:m.name,email:m.email,about:m.type==="job"?"Job offer":"Review",message:m.body,botcheck:false})});
+  const j=await r.json().catch(()=>({}));return r.ok&&j.success===true;}catch(_){return false;}}
+function showDone(kind,m,lead){const mailto="mailto:"+TO+"?subject="+encodeURIComponent(m.subject)+"&body="+encodeURIComponent(m.text);
+  document.getElementById("msgPreview").textContent="Subject: "+m.subject+"\n\n"+m.text;document.getElementById("msgMailto").href=mailto;
+  document.getElementById("msgReplyTo").textContent=m.email;document.getElementById("msgSent").hidden=kind!=="sent";
+  document.getElementById("msgFallback").hidden=kind==="sent";document.getElementById("msgCopy").hidden=kind==="sent";
+  if(lead)document.getElementById("msgFallbackLead").textContent=lead;
+  document.getElementById("msgEdit").hidden=kind==="sent";
+  document.getElementById("msgFormWrap").hidden=true;document.getElementById("msgDone").hidden=false;LAYERS.msg.querySelector("#msgDone [data-close]").focus();return mailto;}
+let sending=false;
+msgForm.addEventListener("submit",async e=>{e.preventDefault();if(sending)return;const m=composeMail();
   const problem=!m.name?"Add your name.":!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email)?"Add a valid email address, like name@company.com.":!m.body?"Write a message before sending.":"";
   msgErr.hidden=!problem;msgErr.textContent=problem;if(problem)return;
-  const a=document.createElement("a");a.href="mailto:"+TO+"?subject="+encodeURIComponent(m.subject)+"&body="+encodeURIComponent(m.text);a.target="_blank";a.rel="noopener";
-  document.body.appendChild(a);try{a.click();}catch(_){}a.remove();
-  document.getElementById("msgPreview").textContent="Subject: "+m.subject+"\n\n"+m.text;
-  document.getElementById("msgFormWrap").hidden=true;document.getElementById("msgDone").hidden=false;LAYERS.msg.querySelector("#msgDone .btn.primary").focus();});
-document.getElementById("msgEdit").onclick=()=>{document.getElementById("msgDone").hidden=true;document.getElementById("msgFormWrap").hidden=false;document.getElementById("msgBody").focus();};
+  if(document.getElementById("msgBot").checked){showDone("sent",m);return;}
+  if(!hasKey){const mailto=showDone("fallback",m,"Your email app should now show your message, addressed to Shalom. Press send there to deliver it.");
+    const a=document.createElement("a");a.href=mailto;a.target="_blank";a.rel="noopener";document.body.appendChild(a);try{a.click();}catch(_){}a.remove();return;}
+  const btn=document.getElementById("msgSend");sending=true;btn.disabled=true;btn.textContent="Sending…";
+  const ok=await sendWeb3(m);sending=false;btn.disabled=false;btn.textContent="Send message";
+  if(ok){showDone("sent",m);msgForm.reset();}
+  else showDone("fallback",m,"The message couldn't be sent from this page. You can send it from your own email app instead; nothing you wrote is lost.");});
+document.getElementById("msgEdit").onclick=()=>{document.getElementById("msgEdit").hidden=false;document.getElementById("msgDone").hidden=true;document.getElementById("msgFormWrap").hidden=false;document.getElementById("msgBody").focus();};
 LAYERS.msg.addEventListener("click",e=>{const b=e.target.closest("[data-copy]");if(!b)return;const el=document.getElementById(b.dataset.copy);
   navigator.clipboard.writeText(el.textContent).then(()=>b.textContent="Copied").catch(()=>{const r=document.createRange();r.selectNodeContents(el);getSelection().removeAllRanges();getSelection().addRange(r);});});
 document.getElementById("playBtn").focus({preventScroll:true});
 </script>
 
-</body></html>
+</body>
+</html>
