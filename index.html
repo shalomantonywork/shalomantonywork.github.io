@@ -29,7 +29,7 @@ header h1{font:400 28px/1 var(--display);margin:0;letter-spacing:.01em}
 header h1 small{font:500 11px var(--mono);color:var(--mid);letter-spacing:.12em;text-transform:uppercase;margin-left:10px}
 .hint{font:400 12px var(--mono);color:var(--mid)}
 kbd{font:500 11px var(--mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--paper);color:var(--ink)}
-.stage{flex:1;min-height:0;position:relative;display:grid;place-items:center}
+.stage{flex:1;min-height:0;position:relative;display:grid;place-items:center;overflow:hidden}
 canvas{display:block;max-width:100%;touch-action:manipulation}
 nav{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-block:6px 12px}
 nav span{font:500 11px var(--mono);color:var(--mid);letter-spacing:.1em;text-transform:uppercase;margin-right:4px}
@@ -137,6 +137,12 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset
 .seg input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2px}
 .err{margin:0;font-size:14px;color:var(--ink);border-left:2px solid var(--ink);padding-left:10px}
 .preview{white-space:pre-wrap;font-size:14px}
+.langpick{display:grid;gap:9px;margin:14px 0 18px;padding:12px 14px;border:1px solid var(--ink)}
+.lp-q{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mid)}
+.lp-row{display:flex;gap:8px;flex-wrap:wrap}
+.lp{border:1px solid var(--line);border-radius:999px;padding:7px 18px;font:600 15px var(--body);background:var(--paper);color:var(--ink);cursor:pointer}
+.lp:hover{border-color:var(--ink)}
+.lp[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 @media (max-width:560px){
   .entry{grid-template-columns:1fr}
   .row{grid-template-columns:1fr auto}.row b{grid-column:1/-1}
@@ -147,16 +153,16 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset
 
 <div class="app">
   <header>
-    <h1>Shalom Antony<small>CV · walk-through</small></h1>
-    <div class="hd-r"><div class="hint" id="hint"><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd> to walk · <kbd>Enter</kbd> to explore · <kbd>F</kbd> to flip</div>
-    <button class="chip" id="menuBtn">Menu</button><button class="chip flipbtn" id="flipBtn">Flip to business card</button></div>
+    <h1>Shalom Antony<small data-t="sub">CV · walk-through</small></h1>
+    <div class="hd-r"><div class="hint" id="hint" data-th="hint"><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd> to walk · <kbd>Enter</kbd> to explore · <kbd>F</kbd> to flip</div>
+    <button class="chip" id="langBtn" lang="fr">Français</button><button class="chip" id="menuBtn" data-t="menu">Menu</button><button class="chip flipbtn" id="flipBtn">Flip to business card</button></div>
   </header>
   <div class="stage" id="stage">
-    <canvas id="c" role="img" aria-label="A CV lying flat on a desk. A small character walks over its sections; stand on a section and press Enter or click to explore it. The buttons below open each section directly."></canvas>
+    <canvas id="c" role="img" data-ta="aria-label:canvasAria" aria-label="A CV lying flat on a desk. A small character walks over its sections; stand on a section and press Enter or click to explore it. The buttons below open each section directly."></canvas>
     <div class="scrim" id="scrim" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
   </div>
-  <nav aria-label="Open a section">
-    <span>Sections</span>
+  <nav data-ta="aria-label:navAria" aria-label="Open a section">
+    <span data-t="navLabel">Sections</span>
     <button class="chip" data-sec="contact">Contact</button>
     <button class="chip" data-sec="profile">Profile</button>
     <button class="chip" data-sec="experience">Experience</button>
@@ -170,66 +176,70 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset
 
 <div class="layer" id="startLayer" role="dialog" aria-modal="true" aria-labelledby="startTitle">
   <div class="sheet card">
-    <div class="crumb">Interactive CV · 2026</div>
-    <h2 id="startTitle">Welcome to <em>Shalom's</em> CV</h2>
-    <p class="lede">Walk across my CV, jump into a section to read it, and flip the page over for my business card.</p>
+    <div class="crumb" data-t="startCrumb">Interactive CV · 2026</div>
+    <div class="langpick" role="group" aria-label="Language · Langue">
+      <span class="lp-q">Choose your language · Choisissez votre langue</span>
+      <div class="lp-row"><button type="button" class="lp" data-lang="en" lang="en" aria-pressed="true">English</button><button type="button" class="lp" data-lang="fr" lang="fr" aria-pressed="false">Français</button></div>
+    </div>
+    <h2 id="startTitle" data-th="startTitle">Welcome to <em>Shalom's</em> CV</h2>
+    <p class="lede" data-t="startLede">Walk across my CV, jump into a section to read it, and flip the page over for my business card.</p>
     <dl class="keys">
-      <dt><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd>&nbsp;or&nbsp;<kbd>WASD</kbd></dt><dd>Walk, or click anywhere on the paper</dd>
-      <dt><kbd>Enter</kbd>&nbsp;or click</dt><dd>Jump into the section you're standing on</dd>
-      <dt><kbd>F</kbd></dt><dd>Flip to the business card and back</dd>
-      <dt><kbd>Esc</kbd></dt><dd>Close a section</dd>
+      <dt data-th="k1dt"><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd>&nbsp;or&nbsp;<kbd>WASD</kbd></dt><dd data-t="k1dd">Walk, or click anywhere on the paper</dd>
+      <dt data-th="k2dt"><kbd>Enter</kbd>&nbsp;or click</dt><dd data-t="k2dd">Jump into the section you're standing on</dd>
+      <dt><kbd>F</kbd></dt><dd data-t="k3dd">Flip to the business card and back</dd>
+      <dt><kbd>Esc</kbd></dt><dd data-t="k4dd">Close a section</dd>
     </dl>
-    <p class="touch" id="touchHint" hidden>On a touchscreen: tap the paper to walk there, then tap the section again to jump in.</p>
-    <div class="actions"><button class="btn primary" id="playBtn">Play</button><button class="btn ghost" id="pdfBtn">View the CV as PDF</button></div>
-    <button class="textlink" id="msgBtn">Send me a review or a job offer →</button>
+    <p class="touch" id="touchHint" data-t="touch" hidden>On a touchscreen: tap the paper to walk there, then tap the section again to jump in.</p>
+    <div class="actions"><button class="btn primary" id="playBtn" data-t="play">Play</button><button class="btn ghost" id="pdfBtn" data-t="viewPdf">View the CV as PDF</button></div>
+    <button class="textlink" id="msgBtn" data-t="msgLink">Send me a review or a job offer →</button>
   </div>
 </div>
-<div class="layer" id="pdfLayer" hidden role="dialog" aria-modal="true" aria-label="CV as PDF">
+<div class="layer" id="pdfLayer" hidden role="dialog" aria-modal="true" data-ta="aria-label:pdfAria" aria-label="CV as PDF">
   <div class="pdfbox">
-    <div class="pdfbar"><span class="ttl">Shalom-Antony-CV.pdf · 2 pages</span>
-      <button class="back" id="dlBtn" hidden>Download PDF</button>
-      <a class="back" href="cv/Shalom-Antony-CV.pdf" target="_blank" rel="noopener">Open in a new tab ↗</a>
-      <button class="back" data-close>Close</button></div>
-    <div class="pages"><img data-src="cv/page-1.png" alt="CV page 1: contact details, profile, experience at Voxsight and Doctolib, and projects"><img data-src="cv/page-2.png" alt="CV page 2: Doctolib case study, education, skills and languages, hobbies and referrals"></div>
-    <div class="pdfbar" style="border-top:1px solid var(--line);border-bottom:0"><span class="status-line" id="dlStatus">Scroll to read both pages.</span></div>
+    <div class="pdfbar"><span class="ttl" id="pdfTtl">Shalom-Antony-CV.pdf · 2 pages</span>
+      <button class="back" id="dlBtn" data-t="dl" hidden>Download PDF</button>
+      <a class="back" id="pdfOpen" href="cv/Shalom-Antony-CV.pdf" target="_blank" rel="noopener" data-t="openTab">Open in a new tab ↗</a>
+      <button class="back" data-close data-t="close">Close</button></div>
+    <div class="pages"><img id="pdfImg1" alt=""><img id="pdfImg2" alt=""></div>
+    <div class="pdfbar" style="border-top:1px solid var(--line);border-bottom:0"><span class="status-line" id="dlStatus" data-t="pdfStatus">Scroll to read both pages.</span></div>
   </div>
 </div>
 <div class="layer" id="msgLayer" hidden role="dialog" aria-modal="true" aria-labelledby="msgTitle">
   <div class="sheet card">
-    <div class="bar"><span class="crumb">Contact</span><button class="back" data-close>Close</button></div>
-    <h2 id="msgTitle">Send a review or a job offer</h2>
+    <div class="bar"><span class="crumb">Contact</span><button class="back" data-close data-t="close">Close</button></div>
+    <h2 id="msgTitle" data-t="msgTitle">Send a review or a job offer</h2>
     <div id="msgFormWrap">
       <p class="lede" id="msgLede">Write your message here and it goes straight to my inbox. I reply from shalom.antony@audencia.com.</p>
       <form class="form" id="msgForm" novalidate>
-        <fieldset class="seg"><legend>About</legend>
-          <label><input type="radio" name="msgType" id="msgTypeJob" value="job" checked><span>Job offer</span></label>
-          <label><input type="radio" name="msgType" id="msgTypeReview" value="review"><span>Review</span></label></fieldset>
-        <div class="field"><label for="msgName">Your name</label><input id="msgName" name="name" autocomplete="name" required></div>
-        <div class="field"><label for="msgEmail">Your email</label><input id="msgEmail" name="email" type="email" autocomplete="email" required></div>
-        <div class="field"><label for="msgBody">Message</label><textarea id="msgBody" name="message" rows="5" required></textarea></div>
+        <fieldset class="seg"><legend data-t="about">About</legend>
+          <label><input type="radio" name="msgType" id="msgTypeJob" value="job" checked><span data-t="job">Job offer</span></label>
+          <label><input type="radio" name="msgType" id="msgTypeReview" value="review"><span data-t="review">Review</span></label></fieldset>
+        <div class="field"><label for="msgName" data-t="yourName">Your name</label><input id="msgName" name="name" autocomplete="name" required></div>
+        <div class="field"><label for="msgEmail" data-t="yourEmail">Your email</label><input id="msgEmail" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="msgBody" data-t="message">Message</label><textarea id="msgBody" name="message" rows="5" required></textarea></div>
         <input type="checkbox" name="botcheck" id="msgBot" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
         <p class="err" id="msgErr" hidden></p>
         <div class="actions"><button class="btn primary" type="submit" id="msgSend">Send message</button></div>
       </form>
     </div>
     <div id="msgDone" hidden>
-      <div id="msgSent" hidden><p class="lede" style="color:var(--ink)">Message sent. Thank you! I'll reply to <b id="msgReplyTo"></b> as soon as I can.</p></div>
-      <div id="msgFallback" hidden><p class="lede" style="color:var(--ink)" id="msgFallbackLead">Your message is ready to send from your own email app.</p>
-        <p class="lede">If no email window opens, copy the address and the message below and send them from any email account.</p>
-        <div class="actions" style="margin-bottom:14px"><a class="btn primary" id="msgMailto" href="#" target="_blank" rel="noopener" style="text-decoration:none">Open in my email app</a></div></div>
+      <div id="msgSent" hidden><p class="lede" style="color:var(--ink)" id="msgSentText"></p></div>
+      <div id="msgFallback" hidden><p class="lede" style="color:var(--ink)" id="msgFallbackLead"></p>
+        <p class="lede" data-t="fbHelp">If no email window opens, copy the address and the message below and send them from any email account.</p>
+        <div class="actions" style="margin-bottom:14px"><a class="btn primary" id="msgMailto" href="#" target="_blank" rel="noopener" style="text-decoration:none" data-t="openMail">Open in my email app</a></div></div>
       <div id="msgCopy">
       <div class="rows">
-        <div class="row"><b>To</b><span id="msgTo">shalom.antony@audencia.com</span><button class="copy" data-copy="msgTo">Copy</button></div>
-        <div class="row"><b>Message</b><span class="preview" id="msgPreview"></span><button class="copy" data-copy="msgPreview">Copy</button></div>
+        <div class="row"><b data-t="to">To</b><span id="msgTo">shalom.antony@audencia.com</span><button class="copy" data-copy="msgTo" data-t="copy">Copy</button></div>
+        <div class="row"><b data-t="message">Message</b><span class="preview" id="msgPreview"></span><button class="copy" data-copy="msgPreview" data-t="copy">Copy</button></div>
       </div></div>
-      <div class="actions" style="margin-top:16px"><button class="btn ghost" id="msgEdit">Edit message</button><button class="btn primary" data-close>Done</button></div>
+      <div class="actions" style="margin-top:16px"><button class="btn ghost" id="msgEdit" data-t="edit">Edit message</button><button class="btn primary" data-close data-t="done">Done</button></div>
     </div>
   </div>
 </div>
 
 <script>
 /* ================= CV content ================= */
-const EXP=[
+const EXP_EN=[
   {org:"Doctolib",kind:"Internship",title:"Salesforce Support Associate",dates:"Jul 2025 – Dec 2025",place:"Nantes, France",
     body:["Built data summaries and reports to support strategic decisions and cross-team planning for internal Salesforce administration",
           "Worked with healthcare professionals and business stakeholders to optimise CRM and data systems, improving visibility of the patient journey",
@@ -241,15 +251,15 @@ const EXP=[
           "Wrote reports and analyses for clients"],
     skills:["Qualitative & quantitative research","Interviewing","Analysis & synthesis","Report writing"]}
 ];
-const EDU=[
+const EDU_EN=[
   {org:"Manipal Academy of Higher Education",title:"Bachelor in French & Intercultural Studies",dates:"2017 – 2020",place:"Manipal, India",courses:["French (B2)","Spanish (A2)","Intercultural communication"]},
   {org:"Manipal Academy of Higher Education",title:"Master in Media & Communication",dates:"2020 – 2022",place:"Manipal, India",courses:["Public relations","Media research and studies"]},
   {org:"Audencia Business School",title:"Master in Management (MiM)",dates:"2024 – 2025",place:"Nantes, France · Grande École programme, M1",courses:["Financial analysis","Management control","Managerial strategy","Accounting"]},
   {org:"Audencia Business School",title:"MSc Digital Business & Data Management",dates:"2025 – 2026",place:"Nantes, France · Grande École programme, M2",courses:["Digital transformation","Data analysis","Cybersecurity","Project management"]}
 ];
 /* level 1–5 are placeholders except languages; "from" points at the section (and entry) where the skill was acquired */
-const LEVEL_NAMES=["","Beginner","Learning","Intermediate","Advanced","Expert"];
-const SKILLS=[
+const LEVEL_NAMES_EN=["","Beginner","Learning","Intermediate","Advanced","Expert"];
+const SKILLS_EN=[
   {name:"CRM & Salesforce",level:4,from:{to:"experience",idx:0,label:"Doctolib internship"}},
   {name:"Data analysis & reporting",level:4,from:{to:"experience",idx:0,label:"Doctolib internship"}},
   {name:"Qualitative & quantitative research",level:4,from:{to:"experience",idx:1,label:"Voxsight internship"}},
@@ -264,7 +274,7 @@ const SKILLS=[
   {name:"Market & competitor analysis",level:3,from:{to:"projects",idx:2,label:"Sephora business case"}},
   {name:"Digital illustration",level:4,from:{to:"hobbies",idx:0,label:"Digital art"}}
 ];
-const PROJECTS=[
+const PROJECTS_EN=[
   {title:"Winner, Strategy & Ethical Challenges Hackathon",org:"JM Polymers × Audencia",when:"Apr 2025",kind:"Hackathon · 1st place",place:"Nantes, France",
     body:["Built strategic growth plans using cross-functional data from the business units of Cabamix and JM Polymers",
           "Developed a complete ethical business model by analysing market and industry data and internal revenue streams"],
@@ -284,13 +294,13 @@ const PROJECTS=[
           "Talked with employees to understand how growth happens in this industry and how Doctolib stood out",
           "Identified three main challenges and how to overcome them: data protection in the digital age, unfair competition and possible market monopolisation, and expansion into countries with robust or complex public healthcare systems such as the NHS"]}
 ];
-const REFS=[
+const REFS_EN=[
   {name:"Fabien Michenaud",role:"Team Manager and mentor, Salesforce Support Team",org:"Doctolib",link:{to:"experience",idx:0}},
   {name:"Olivier Cotten",role:"Manager and Senior Consultant",org:"Voxsight",link:{to:"experience",idx:1}}
 ];
 /* Paste your links here, e.g. portfolio:"https://…". Until then the page shows "link coming soon". */
 const LINKS={portfolio:null,booklet:null,steam:null};
-const HOBBIES=[
+const HOBBIES_EN=[
   {name:"Digital art",note:"Commissioned and fan work",link:"portfolio",linkLabel:"Portfolio"},
   {name:"Pokémon fan-art booklet",note:"An interactive booklet of my fan art",link:"booklet",linkLabel:"Booklet"},
   {name:"Video games",note:"Professional and hobby gamer",link:"steam",linkLabel:"Steam profile"},
@@ -298,10 +308,194 @@ const HOBBIES=[
   {name:"Reading",note:"Always reading something"}
 ];
 /* Business card: the job title cycles through these in a random order */
-const ROLES=["Business Analyst","Data Analyst","Digital Transformation Consultant","CRM Support Analyst","Growth Operations Specialist","Product Manager","Project Manager"];
-const PROFILE=["I'm an M2 student in the MSc Digital Business & Data Management at Audencia Business School, after a Master in Management.",
+const ROLES_EN=["Business Analyst","Data Analyst","Digital Transformation Consultant","CRM Support Analyst","Growth Operations Specialist","Product Manager","Project Manager"];
+const PROFILE_EN=["I'm an M2 student in the MSc Digital Business & Data Management at Audencia Business School, after a Master in Management.",
   "My internships at Doctolib and Voxsight gave me experience in CRM, project management and consulting.",
   "I'm organised, at ease with people and a team player, with experience in marketing, research and reporting in France and abroad."];
+
+/* ================= French content ================= */
+const EXP_FR=[
+  {org:"Doctolib",kind:"Stage",title:"Chargée de support Salesforce",dates:"Juil. 2025 – déc. 2025",place:"Nantes, France",
+    body:["Réalisation de synthèses de données et de reportings pour appuyer les décisions stratégiques et la planification transverse liées à l’administration interne de Salesforce",
+          "Collaboration avec des professionnels de santé et des interlocuteurs métier pour optimiser les systèmes CRM et de données, améliorant la visibilité sur le parcours patient",
+          "Immersion approfondie dans les workflows de santé numérique, les outils de communication clinique et les indicateurs d’adoption"],
+    skills:["CRM","Analyse de données","Communication","Rigueur","Adaptabilité"]},
+  {org:"Voxsight",kind:"Stage",title:"Consultante junior en marketing",dates:"Janv. 2026 – juil. 2026",place:"Nantes, France",
+    body:["Réalisation d’études documentaires qualitatives et quantitatives au sein d’un cabinet de conseil spécialisé dans le secteur de la santé",
+          "Conduite d’entretiens approfondis avec des professionnels du secteur de la santé",
+          "Élaboration de rapports et d’analyses à destination des clients"],
+    skills:["Recherche qualitative et quantitative","Conduite d’entretiens","Analyse et synthèse","Rédaction de rapports"]}
+];
+const EDU_FR=[
+  {org:"Manipal Academy of Higher Education",title:"Bachelor Français et Études interculturelles",dates:"2017 – 2020",place:"Manipal, Inde",courses:["Français (B2)","Espagnol (A2)","Communication interculturelle"]},
+  {org:"Manipal Academy of Higher Education",title:"Master Média et Communication",dates:"2020 – 2022",place:"Manipal, Inde",courses:["Relations publiques","Recherche et études sur les médias"]},
+  {org:"Audencia Business School",title:"Master in Management (MiM)",dates:"2024 – 2025",place:"Nantes, France · Programme Grande École, M1",courses:["Analyse financière","Contrôle de gestion","Stratégie managériale","Comptabilité"]},
+  {org:"Audencia Business School",title:"MSc Digital Business and Data Management",dates:"2025 – 2026",place:"Nantes, France · Programme Grande École, M2",courses:["Transformation digitale","Analyse de données","Cybersécurité","Gestion de projets"]}
+];
+const LEVEL_NAMES_FR=["","Débutante","En apprentissage","Intermédiaire","Avancée","Experte"];
+const SKILLS_FR=[
+  {name:"CRM & Salesforce",level:4,from:{to:"experience",idx:0,label:"Stage chez Doctolib"}},
+  {name:"Analyse de données & reporting",level:4,from:{to:"experience",idx:0,label:"Stage chez Doctolib"}},
+  {name:"Recherche qualitative & quantitative",level:4,from:{to:"experience",idx:1,label:"Stage chez Voxsight"}},
+  {name:"Conduite d’entretiens",level:4,from:{to:"experience",idx:1,label:"Stage chez Voxsight"}},
+  {name:"Rédaction de rapports",level:4,from:{to:"experience",idx:1,label:"Stage chez Voxsight"}},
+  {name:"Communication & relations publiques",level:4,from:{to:"education",idx:1,label:"Master Média et Communication"}},
+  {name:"Gestion de projets",level:3,from:{to:"education",idx:3,label:"MSc Digital Business & Data"}},
+  {name:"Français & anglais",level:5,levelName:"Courant",from:{to:"education",idx:0,label:"Bachelor Français & Études interculturelles"}},
+  {name:"Analyse stratégique & financière",level:3,from:{to:"projects",idx:0,label:"Hackathon gagné, JM Polymers"}},
+  {name:"Gestion des parties prenantes",level:3,from:{to:"projects",idx:1,label:"Projet Kering Second Life"}},
+  {name:"Modélisation de business case",level:3,from:{to:"projects",idx:1,label:"Projet Kering Second Life"}},
+  {name:"Analyse de marché & de la concurrence",level:3,from:{to:"projects",idx:2,label:"Business case Sephora"}},
+  {name:"Illustration numérique",level:4,from:{to:"hobbies",idx:0,label:"Art numérique"}}
+];
+const PROJECTS_FR=[
+  {title:"Gagnante du Hackathon Stratégie et Enjeux Éthiques",org:"JM Polymers × Audencia",when:"Avril 2025",kind:"Hackathon · 1re place",place:"Nantes, France",
+    body:["Élaboration de plans de croissance stratégique en utilisant des données transversales provenant de différentes unités commerciales de Cabamix et JM Polymers",
+          "Développement d’un modèle économique éthique complet en analysant les données du marché, de l’industrie et les sources de revenus internes"],
+    skills:["Travail en équipe","Analyse stratégique","Analyse financière","Leadership","Communication"]},
+  {title:"Kering – Troisième place au Projet Second Life",org:"Capgemini × Audencia",when:"Avril 2025",kind:"Concours · 3e place",place:"Nantes, France",
+    body:["Conception d’une stratégie de modèle d’économie circulaire « Second Life » à partir de l’analyse des sources de revenus et des bilans environnementaux (P&L)",
+          "Proposition de modifications aux stratégies existantes via une gestion et une analyse des parties prenantes",
+          "Participation à une collaboration entre consultants en développement durable et membres de l’équipe"],
+    skills:["Travail en équipe","Gestion des parties prenantes","Modélisation de business case","Analyse de données"]},
+  {title:"Business case : transformation digitale de Sephora",org:"Sephora",when:"Business case",kind:"",place:"",
+    body:["Analyse des innovations beauty tech de la dernière décennie et extraction d’enseignements concrets : technologies ayant précédé chaque innovation et délai moyen de mise sur le marché",
+          "Cartographie des concurrents de la beauty tech et analyse du marché de leurs innovations",
+          "Cartographie de la position de Sephora sur le marché de la beauty tech en 2026, y compris ses partenariats en réalité augmentée et en IA",
+          "Comparaison des coûts et revenus de Sephora avec ceux de ses pairs et concurrents pour identifier les écarts, et propositions pour éviter les goulets d’étranglement et les écueils possibles"]},
+  {title:"Étude du modèle économique digital de Doctolib",org:"Doctolib",when:"Étude de cas",kind:"",place:"",
+    body:["Cartographie du modèle économique et de la proposition de valeur de Doctolib pour comprendre son succès",
+          "Échanges avec des collaborateurs de l’entreprise pour comprendre comment la croissance se construit dans ce secteur et ce qui a distingué Doctolib",
+          "Identification de trois enjeux majeurs et des moyens de les surmonter : la protection des données à l’ère du numérique, la concurrence déloyale et le risque de monopole, et l’expansion dans des pays dotés de systèmes de santé publics solides ou complexes comme le NHS"]}
+];
+const REFS_FR=[
+  {name:"Fabien Michenaud",role:"Manager d’équipe et mentor, équipe Support Salesforce",org:"Doctolib",link:{to:"experience",idx:0}},
+  {name:"Olivier Cotten",role:"Manager et consultant senior",org:"Voxsight",link:{to:"experience",idx:1}}
+];
+const HOBBIES_FR=[
+  {name:"Art numérique",note:"Commandes et fan art",link:"portfolio",linkLabel:"Portfolio"},
+  {name:"Livret de fan art Pokémon",note:"Un livret interactif de mes fan arts",link:"booklet",linkLabel:"Livret"},
+  {name:"Jeux vidéo",note:"Joueuse passionnée, en loisir comme en compétition",link:"steam",linkLabel:"Profil Steam"},
+  {name:"Jardinage",note:"Fleurs et plantes d’intérieur"},
+  {name:"Lecture",note:"Toujours un livre en cours"}
+];
+const ROLES_FR=["Business Analyst","Data Analyst","Consultante en transformation digitale","Analyste support CRM","Spécialiste Growth Operations","Product Manager","Cheffe de projet"];
+const PROFILE_FR=["Étudiante en M2, actuellement en MSc Digital Business and Data Management à Audencia Business School après un Master in Management (MiM).",
+  "J’ai des expériences professionnelles en CRM, gestion de projets et en consulting grâce à mes stages chez Doctolib et Voxsight.",
+  "Sens de l’organisation, aisance relationnelle et esprit d’équipe développés à travers des expériences en marketing, recherche et reporting, en France comme à l’international."];
+
+/* section labels and the short lines printed on the sheet */
+const SEC_TEXT={
+  en:{contact:{label:"Contact",lines:["Digital Business & Data · Nantes, France","shalomantonywork@gmail.com · +33 7 45 43 73 52"]},
+      profile:{label:"Profile",lines:["M2 student, MSc Digital Business & Data Management, Audencia"]},
+      experience:{label:"Experience",lines:["Voxsight — Jan–Jul 2026","Junior Marketing Consultant","","Doctolib — Jul–Dec 2025","Salesforce Support Associate"]},
+      education:{label:"Education",lines:["Audencia — MSc, 2025–26","Audencia — MiM, 2024–25","Manipal — MA, 2020–22","Manipal — BA, 2017–20"]},
+      skills:{label:"Skills",lines:["CRM & Salesforce · Data analysis","Research · Interviewing · Writing"]},
+      projects:{label:"Projects",lines:["Hackathon winner, 2025","Kering: 3rd place, 2025","Sephora · Doctolib cases"]},
+      hobbies:{label:"Hobbies",lines:["Art · Games · Garden · Books"]},
+      referrals:{label:"Referrals",lines:["Doctolib · Voxsight managers"]}},
+  fr:{contact:{label:"Contact",lines:["Digital Business & Data · Nantes, France","shalomantonywork@gmail.com · +33 7 45 43 73 52"]},
+      profile:{label:"Profil",lines:["Étudiante en M2, MSc Digital Business & Data, Audencia"]},
+      experience:{label:"Expérience",lines:["Voxsight — janv.–juil. 2026","Consultante junior en marketing","","Doctolib — juil.–déc. 2025","Chargée de support Salesforce"]},
+      education:{label:"Formation",lines:["Audencia — MSc, 2025–26","Audencia — MiM, 2024–25","Manipal — Master, 2020–22","Manipal — Bachelor, 2017–20"]},
+      skills:{label:"Compétences",lines:["CRM & Salesforce · Données","Recherche · Entretiens · Rédaction"]},
+      projects:{label:"Projets",lines:["Hackathon gagné, 2025","Kering : 3e place, 2025","Cas Sephora · Doctolib"]},
+      hobbies:{label:"Loisirs",lines:["Art · Jeux · Jardin · Lecture"]},
+      referrals:{label:"Références",lines:["Managers Doctolib · Voxsight"]}}};
+
+/* interface text */
+const UI={
+ en:{sub:"CV · walk-through",
+  hint:'<kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd> to walk · <kbd>Enter</kbd> to explore · <kbd>F</kbd> to flip',
+  hintTouch:"Tap the paper to walk · tap again to explore",menu:"Menu",flipToCard:"Flip to business card",flipToCV:"Flip to the CV",langSwitch:"Français",
+  navLabel:"Sections",navAria:"Open a section",
+  canvasAria:"A CV lying flat on a desk. A small character walks over its sections; stand on a section and press Enter or click to explore it. The buttons below open each section directly.",
+  startCrumb:"Interactive CV · 2026",startTitle:"Welcome to <em>Shalom's</em> CV",
+  startLede:"Walk across my CV, jump into a section to read it, and flip the page over for my business card.",
+  k1dt:'<kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd>&nbsp;or&nbsp;<kbd>WASD</kbd>',k1dd:"Walk, or click anywhere on the paper",
+  k2dt:'<kbd>Enter</kbd>&nbsp;or click',k2dd:"Jump into the section you're standing on",k3dd:"Flip to the business card and back",k4dd:"Close a section",
+  touch:"On a touchscreen: tap the paper to walk there, then tap the section again to jump in.",
+  play:"Play",viewPdf:"View the CV as PDF",msgLink:"Send me a review or a job offer →",
+  pdfAria:"CV as PDF",dl:"Download PDF",openTab:"Open in a new tab ↗",close:"Close",pdfStatus:"Scroll to read both pages.",pages:"2 pages",
+  img1:"CV page 1: contact details, profile, experience at Voxsight and Doctolib, and projects",
+  img2:"CV page 2: more projects, education, skills and languages, hobbies and referrals",
+  dlPreparing:"Preparing the file…",dlSaved:"Saved: ",dlCancel:"Download cancelled.",dlBusy:"A save prompt is already open.",
+  dlUnavailable:"The download isn't available here. Use “Open in a new tab” instead.",
+  msgTitle:"Send a review or a job offer",
+  msgLede:"Write your message here and it goes straight to my inbox. I reply from shalom.antony@audencia.com.",
+  msgLedeNoKey:"Write your message here. It opens in your email app, addressed to <b>shalom.antony@audencia.com</b> and ready to send.",
+  about:"About",job:"Job offer",review:"Review",yourName:"Your name",yourEmail:"Your email",message:"Message",
+  send:"Send message",sendNoKey:"Open in my email app",sending:"Sending…",
+  sent:"Message sent. Thank you! I'll reply to {email} as soon as I can.",
+  fbHelp:"If no email window opens, copy the address and the message below and send them from any email account.",
+  openMail:"Open in my email app",to:"To",copy:"Copy",copied:"Copied",edit:"Edit message",done:"Done",
+  fbNoKey:"Your email app should now show your message, addressed to Shalom. Press send there to deliver it.",
+  fbFail:"The message couldn't be sent from this page. You can send it from your own email app instead; nothing you wrote is lost.",
+  errName:"Add your name.",errEmail:"Add a valid email address, like name@company.com.",errBody:"Write a message before sending.",
+  subjJob:"Job offer for Shalom Antony, from ",subjReview:"Review for Shalom Antony, from ",subjectLabel:"Subject: ",fromName:"Shalom's interactive CV",
+  explore:"Explore {x}",cloudKeys:"press Enter or click",cloudTouch:"tap to jump in",
+  folioFront:"p. 1 / 2 · F to flip",folioBack:"p. 2 / 2 · F to flip",company:"Your company goes here ;)",
+  backCV:"← Back to the CV",
+  experience:"Experience",expLede:"Two internships in digital health, one in CRM operations and one in consulting.",
+  education:"Education",eduLede:"Grande École programme at Audencia, after a BA and an MA at Manipal.",
+  profile:"Profile",email:"Email",phone:"Phone",languages:"Languages",langsVal:"French (fluent) · English (fluent)",
+  skills:"Skills",skillsLede:"Each skill shows where I picked it up. Follow the link to jump to that part of the CV.",
+  prevSkill:"Previous skill",nextSkill:"Next skill",
+  skillsSmall:"Tools: Salesforce · Microsoft Office · Google Workspace. Levels are placeholders for now, except languages.",
+  skillN:"Skill {n} of {m}",acquired:"Acquired through",
+  projects:"Projects",projLede:"Business school competitions and case studies, from strategy and ethics to digital business models.",
+  hobbies:"Hobbies",soon:"link coming soon",
+  referrals:"Referrals",refLede:"The managers who supervised my two internships.",seeIntern:"See the {org} internship →",refSmall:"Ask me for their contact details.",
+  docTitle:"Shalom Antony · Interactive CV"},
+ fr:{sub:"CV · visite interactive",
+  hint:'<kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> ou <kbd>ZQSD</kbd> pour marcher · <kbd>Entrée</kbd> pour explorer · <kbd>F</kbd> pour retourner',
+  hintTouch:"Touchez la feuille pour marcher · touchez à nouveau pour explorer",menu:"Menu",flipToCard:"Voir la carte de visite",flipToCV:"Revenir au CV",langSwitch:"English",
+  navLabel:"Rubriques",navAria:"Ouvrir une rubrique",
+  canvasAria:"Un CV posé à plat sur un bureau. Un petit personnage marche sur ses rubriques ; placez-vous sur une rubrique et appuyez sur Entrée ou cliquez pour l’explorer. Les boutons en dessous ouvrent directement chaque rubrique.",
+  startCrumb:"CV interactif · 2026",startTitle:"Bienvenue dans le CV de <em>Shalom</em>",
+  startLede:"Promenez-vous sur mon CV, sautez dans une rubrique pour la lire, et retournez la page pour découvrir ma carte de visite.",
+  k1dt:'<kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd>&nbsp;ou&nbsp;<kbd>ZQSD</kbd>',k1dd:"Marcher, ou cliquer n’importe où sur la feuille",
+  k2dt:'<kbd>Entrée</kbd>&nbsp;ou clic',k2dd:"Sauter dans la rubrique où vous vous trouvez",k3dd:"Retourner la page : carte de visite, puis CV",k4dd:"Fermer une rubrique",
+  touch:"Sur écran tactile : touchez la feuille pour y marcher, puis touchez à nouveau la rubrique pour y entrer.",
+  play:"Jouer",viewPdf:"Voir le CV en PDF",msgLink:"M’envoyer un avis ou une offre d’emploi →",
+  pdfAria:"CV en PDF",dl:"Télécharger le PDF",openTab:"Ouvrir dans un nouvel onglet ↗",close:"Fermer",pdfStatus:"Faites défiler pour lire les deux pages.",pages:"2 pages",
+  img1:"Page 1 du CV : coordonnées, profil, expériences chez Voxsight et Doctolib, et projets",
+  img2:"Page 2 du CV : autres projets, formation, compétences et langues, loisirs et références",
+  dlPreparing:"Préparation du fichier…",dlSaved:"Enregistré : ",dlCancel:"Téléchargement annulé.",dlBusy:"Une fenêtre d’enregistrement est déjà ouverte.",
+  dlUnavailable:"Le téléchargement n’est pas disponible ici. Utilisez plutôt « Ouvrir dans un nouvel onglet ».",
+  msgTitle:"Envoyer un avis ou une offre d’emploi",
+  msgLede:"Écrivez votre message ici : il arrive directement dans ma boîte mail. Je réponds depuis shalom.antony@audencia.com.",
+  msgLedeNoKey:"Écrivez votre message ici. Il s’ouvre dans votre messagerie, adressé à <b>shalom.antony@audencia.com</b> et prêt à être envoyé.",
+  about:"Objet",job:"Offre d’emploi",review:"Avis",yourName:"Votre nom",yourEmail:"Votre e-mail",message:"Message",
+  send:"Envoyer le message",sendNoKey:"Ouvrir dans ma messagerie",sending:"Envoi…",
+  sent:"Message envoyé, merci ! Je répondrai à {email} dès que possible.",
+  fbHelp:"Si aucune fenêtre ne s’ouvre, copiez l’adresse et le message ci-dessous et envoyez-les depuis n’importe quelle adresse e-mail.",
+  openMail:"Ouvrir dans ma messagerie",to:"À",copy:"Copier",copied:"Copié",edit:"Modifier le message",done:"Terminé",
+  fbNoKey:"Votre messagerie devrait maintenant afficher votre message, adressé à Shalom. Appuyez sur Envoyer pour le transmettre.",
+  fbFail:"Le message n’a pas pu être envoyé depuis cette page. Vous pouvez l’envoyer depuis votre messagerie ; rien de ce que vous avez écrit n’est perdu.",
+  errName:"Indiquez votre nom.",errEmail:"Indiquez une adresse e-mail valide, par exemple nom@entreprise.com.",errBody:"Écrivez un message avant d’envoyer.",
+  subjJob:"Offre d’emploi pour Shalom Antony, de la part de ",subjReview:"Avis pour Shalom Antony, de la part de ",subjectLabel:"Objet : ",fromName:"CV interactif de Shalom",
+  explore:"Explorer : {x}",cloudKeys:"Entrée ou clic",cloudTouch:"touchez pour entrer",
+  folioFront:"p. 1 / 2 · F pour retourner",folioBack:"p. 2 / 2 · F pour retourner",company:"Votre entreprise ici ;)",
+  backCV:"← Retour au CV",
+  experience:"Expérience",expLede:"Deux stages dans la santé numérique : l’un en CRM, l’autre en conseil.",
+  education:"Formation",eduLede:"Programme Grande École à Audencia, après un Bachelor et un Master à Manipal.",
+  profile:"Profil",email:"E-mail",phone:"Téléphone",languages:"Langues",langsVal:"Français (courant) · Anglais (courant)",
+  skills:"Compétences",skillsLede:"Chaque compétence indique où je l’ai acquise. Suivez le lien pour aller à cette partie du CV.",
+  prevSkill:"Compétence précédente",nextSkill:"Compétence suivante",
+  skillsSmall:"Outils : Salesforce · Pack Office · Google Suite. Les niveaux sont provisoires, sauf pour les langues.",
+  skillN:"Compétence {n} sur {m}",acquired:"Acquise grâce à",
+  projects:"Projets",projLede:"Concours et études de cas en école de commerce, de la stratégie et l’éthique aux modèles économiques digitaux.",
+  hobbies:"Loisirs",soon:"lien bientôt disponible",
+  referrals:"Références",refLede:"Les managers qui m’ont encadrée pendant mes deux stages.",seeIntern:"Voir le stage chez {org} →",refSmall:"Demandez-moi leurs coordonnées.",
+  docTitle:"Shalom Antony · CV interactif"}};
+const DATA={en:{EXP:EXP_EN,EDU:EDU_EN,LEVEL_NAMES:LEVEL_NAMES_EN,SKILLS:SKILLS_EN,PROJECTS:PROJECTS_EN,REFS:REFS_EN,HOBBIES:HOBBIES_EN,ROLES:ROLES_EN,PROFILE:PROFILE_EN},
+            fr:{EXP:EXP_FR,EDU:EDU_FR,LEVEL_NAMES:LEVEL_NAMES_FR,SKILLS:SKILLS_FR,PROJECTS:PROJECTS_FR,REFS:REFS_FR,HOBBIES:HOBBIES_FR,ROLES:ROLES_FR,PROFILE:PROFILE_FR}};
+const PDFS={en:{file:"cv/Shalom-Antony-CV.pdf",name:"Shalom-Antony-CV.pdf",pages:["cv/page-1.png","cv/page-2.png"]},
+            fr:{file:"cv/Shalom-Antony-CV-FR.pdf",name:"Shalom-Antony-CV-FR.pdf",pages:["cv/fr-page-1.png","cv/fr-page-2.png"]}};
+let LANG="en";
+let EXP=EXP_EN,EDU=EDU_EN,LEVEL_NAMES=LEVEL_NAMES_EN,SKILLS=SKILLS_EN,PROJECTS=PROJECTS_EN,REFS=REFS_EN,HOBBIES=HOBBIES_EN,ROLES=ROLES_EN,PROFILE=PROFILE_EN;
+const t=k=>(UI[LANG]&&UI[LANG][k]!=null)?UI[LANG][k]:(UI.en[k]!=null?UI.en[k]:k);
 
 /* ================= the sheet layout (world units, the paper is 6 × 8.4) ================= */
 const PW=6,PD=8.4;
@@ -315,13 +509,12 @@ const SECS=[
   {id:"hobbies",label:"Hobbies",x0:.4,x1:2.9,z0:7.25,z1:8.1,lines:["Art · Games · Garden · Books"]},
   {id:"referrals",label:"Referrals",x0:3.1,x1:5.6,z0:7.25,z1:8.1,lines:["Doctolib · Voxsight managers"]}
 ];
-SECS.forEach(s=>s.lift=0);
+SECS.forEach(s=>{s.lift=0;Object.assign(s,SEC_TEXT.en[s.id]);});
 const byId=id=>SECS.find(s=>s.id===id);
 
 /* ================= drawing kit ================= */
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const coarse=matchMedia("(pointer: coarse)").matches;
-if(coarse)document.getElementById("hint").textContent="Tap the paper to walk · tap again to explore";
 const BODYF='"Instrument Sans", system-ui, sans-serif';
 const INK="#1c1c1e",MID="#6f6f74",LINE="#d2d1cc",PAPER="#fbfbf9",SOFT="#efeeea",DESK="#e4e3df",SIDE1="#e3e2dd",SIDE2="#d3d2cd";
 const DISP='"Instrument Serif", Georgia, serif',MONO='"IBM Plex Mono", ui-monospace, monospace';
@@ -331,6 +524,7 @@ let cssScale=1;
 function resize(){const r=stage.getBoundingClientRect(),dpr=devicePixelRatio||1;cssScale=Math.min(r.width/W,r.height/H);
   cv.style.width=W*cssScale+"px";cv.style.height=H*cssScale+"px";cv.width=Math.round(W*cssScale*dpr);cv.height=Math.round(H*cssScale*dpr);}
 addEventListener("resize",resize);resize();
+try{new ResizeObserver(()=>resize()).observe(stage);}catch(_){}
 
 const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],mul=(a,k)=>[a[0]*k,a[1]*k,a[2]*k],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
@@ -422,7 +616,7 @@ function update(dt){
     flipA=flipFrom+(flipTo-flipFrom)*k3;ch.scale=Math.max(0,1-flipT*6);ch.hop=reduce?0:Math.sin(Math.PI*Math.min(1,flipT*3))*.4;
     if(flipT>=1){side=flipTo>1?"back":"front";flipA=0;
       if(side==="back"){frontPos=[ch.x,ch.z];ch.x=6.2;ch.z=5.25;}else if(frontPos){ch.x=frontPos[0];ch.z=frontPos[1];}
-      flipBtn.textContent=side==="back"?"Flip to the CV":"Flip to business card";
+      flipBtn.textContent=t(side==="back"?"flipToCV":"flipToCard");
       goal=side==="back"?{T:[PW/2,0,PD/2+.2],D:10.6,pitch:1.04,yaw:.28}:{T:[...HOME.T],D:HOME.D,pitch:HOME.pitch,yaw:HOME.yaw};
       mode="exit";mt=0;ch.scale=0;if(afterFlip){const f=afterFlip;afterFlip=null;f();}}}
   else if(mode==="exit"){ch.scale=reduce?1:Math.min(1,easeBack(mt/.38));ch.hop=reduce?0:Math.sin(Math.PI*Math.min(1,mt/.45))*.32;
@@ -449,7 +643,7 @@ function drawPaper(front){
   // crop marks, as on a printed proof
   const m=.18,L=.22;[[x0+m,z0+m,1,1],[x1-m,z0+m,-1,1],[x0+m,z1-m,1,-1],[x1-m,z1-m,-1,-1]].forEach(([x,z,sx,sz])=>{line3([x,.001,z],[x+L*sx,.001,z],MID,.7);line3([x,.001,z],[x,.001,z+L*sz],MID,.7);});
   if(front){onPage([.4,.001,.28],()=>{g.font=`500 9px ${MONO}`;g.fillStyle=MID;g.textBaseline="middle";g.fillText("CURRICULUM VITAE · 2026",0,0);});}
-  onPage([x1-.4,.001,z1-.18],()=>{g.font=`500 9px ${MONO}`;g.fillStyle=MID;g.textAlign="right";g.textBaseline="middle";g.fillText(front?"p. 1 / 2 · F to flip":"p. 2 / 2 · F to flip",0,0);g.textAlign="left";});
+  onPage([x1-.4,.001,z1-.18],()=>{g.font=`500 9px ${MONO}`;g.fillStyle=MID;g.textAlign="right";g.textBaseline="middle";g.fillText(t(front?"folioFront":"folioBack"),0,0);g.textAlign="left";});
 }
 /* the back of the sheet is one big landscape business card (840 × 600 drawing units) */
 function drawCard(){const[role,al]=roleNow();
@@ -460,7 +654,7 @@ function drawCard(){const[role,al]=roleNow();
     g.font=`400 116px ${DISP}`;g.fillText("Shalom Antony",64,290);
     g.globalAlpha=al;g.font=`500 38px ${BODYF}`;g.fillText(role,72,388);g.globalAlpha=1;
     g.fillRect(72,420,72,2.4);
-    g.font=`italic 400 46px ${DISP}`;g.fillText("Your company goes here ;)",72,488);
+    g.font=`italic 400 46px ${DISP}`;g.fillText(t("company"),72,488);
     g.fillStyle=MID;g.font=`400 17px ${MONO}`;g.fillText("shalomantonywork@gmail.com",72,552);
     g.textAlign="right";g.fillText("+33 7 45 43 73 52",790,552);g.textAlign="left";});
 }
@@ -497,7 +691,7 @@ function drawChar(){if(ch.scale<=.01||(side==="back"&&mode!=="flip"))return;
 let cloudAct=null;
 function cloudInfo(){if(mode!=="walk"||ch.moving)return null;
   if(side==="back")return null;
-  if(!active)return null;const s=active;return{t1:"Explore "+s.label,t2:coarse?"tap to jump in":"press Enter or click",act:()=>explore(s)};}
+  if(!active)return null;const s=active;return{t1:t("explore").replace("{x}",s.label),t2:t(coarse?"cloudTouch":"cloudKeys"),act:()=>explore(s)};}
 function drawCloud(){cloudRect=null;cloudAct=null;const info=cloudInfo();if(!info)return;
   // anchor the cloud to the top of the character's head, measured on screen
   const ft=pj([ch.x,ch.y+ch.hop,ch.z]);if(!ft)return;
@@ -567,42 +761,42 @@ let skillIdx=0;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function panelBody(id){
   switch(id){
-    case "experience":return `<h2>Experience</h2><p class="lede">Two internships in digital health, one in CRM operations and one in consulting.</p><div class="rule"></div>`+
+    case "experience":return `<h2>${t("experience")}</h2><p class="lede">${t("expLede")}</p><div class="rule"></div>`+
       [1,0].map(i=>{const it=EXP[i];return `<article class="entry" data-i="${i}"><div class="when">${it.dates}<br>${it.kind}</div><div><h3>${it.title}</h3><div class="org">${it.org} · ${it.place}</div>
         <ul>${it.body.map(b=>`<li>${esc(b)}</li>`).join("")}</ul><div class="tags">${it.skills.map(t=>`<span>${esc(t)}</span>`).join("")}</div></div></article>`;}).join("");
-    case "education":return `<h2>Education</h2><p class="lede">Grande École programme at Audencia, after a BA and an MA at Manipal.</p><div class="rule"></div>`+
+    case "education":return `<h2>${t("education")}</h2><p class="lede">${t("eduLede")}</p><div class="rule"></div>`+
       [3,2,1,0].map(i=>{const it=EDU[i];return `<article class="entry" data-i="${i}"><div class="when">${it.dates}</div><div><h3>${esc(it.title)}</h3><div class="org">${esc(it.org)} · ${esc(it.place)}</div>
         <div class="tags">${it.courses.map(t=>`<span>${esc(t)}</span>`).join("")}</div></div></article>`;}).join("");
-    case "profile":return `<h2>Profile</h2><div class="rule"></div>${PROFILE.map(p=>`<p class="lede" style="color:var(--ink)">${esc(p)}</p>`).join("")}`;
+    case "profile":return `<h2>${t("profile")}</h2><div class="rule"></div>${PROFILE.map(p=>`<p class="lede" style="color:var(--ink)">${esc(p)}</p>`).join("")}`;
     case "contact":return `<h2>Shalom Antony</h2><p class="lede">Digital Business &amp; Data · Nantes, France</p><div class="rule"></div><div class="rows">
-      <div class="row"><b>Email</b><span id="mail">shalomantonywork@gmail.com</span><button class="copy" id="cp">Copy</button></div>
-      <div class="row"><b>Phone</b><span>+33 7 45 43 73 52</span><span></span></div>
+      <div class="row"><b>${t("email")}</b><span id="mail">shalomantonywork@gmail.com</span><button class="copy" id="cp">${t("copy")}</button></div>
+      <div class="row"><b>${t("phone")}</b><span>+33 7 45 43 73 52</span><span></span></div>
       <div class="row"><b>LinkedIn</b><a href="https://www.linkedin.com/in/shalom-antony/" target="_blank" rel="noopener">linkedin.com/in/shalom-antony</a><span></span></div>
-      <div class="row"><b>Languages</b><span>French (fluent) · English (fluent)</span><span></span></div></div>`;
-    case "skills":return `<h2>Skills</h2><p class="lede">Each skill shows where I picked it up. Follow the link to jump to that part of the CV.</p>
-      <div class="carousel"><button class="arrow" data-step="-1" aria-label="Previous skill">‹</button><div class="skillcard" id="skc" aria-live="polite"></div><button class="arrow" data-step="1" aria-label="Next skill">›</button></div>
+      <div class="row"><b>${t("languages")}</b><span>${t("langsVal")}</span><span></span></div></div>`;
+    case "skills":return `<h2>${t("skills")}</h2><p class="lede">${t("skillsLede")}</p>
+      <div class="carousel"><button class="arrow" data-step="-1" aria-label="${t("prevSkill")}">‹</button><div class="skillcard" id="skc" aria-live="polite"></div><button class="arrow" data-step="1" aria-label="${t("nextSkill")}">›</button></div>
       <div class="slist" id="slist">${SKILLS.map((s,i)=>`<button data-pick="${i}"><span>${esc(s.name)}</span><span>${esc(s.from.label)}</span></button>`).join("")}</div>
-      <p class="small">Tools: Salesforce · Microsoft Office · Google Workspace. Levels are placeholders for now, except languages.</p>`;
-    case "projects":return `<h2>Projects</h2><p class="lede">Business school competitions and case studies, from strategy and ethics to digital business models.</p><div class="rule"></div>`+
+      <p class="small">${t("skillsSmall")}</p>`;
+    case "projects":return `<h2>${t("projects")}</h2><p class="lede">${t("projLede")}</p><div class="rule"></div>`+
       PROJECTS.map((p,i)=>`<article class="entry" data-i="${i}"><div class="when">${esc(p.when)}${p.kind?`<br>${esc(p.kind)}`:""}</div><div><h3>${esc(p.title)}</h3>
         <div class="org">${esc(p.org)}${p.place?` · ${esc(p.place)}`:""}</div><ul>${p.body.map(b=>`<li>${esc(b)}</li>`).join("")}</ul>
         ${p.skills?`<div class="tags">${p.skills.map(t=>`<span>${esc(t)}</span>`).join("")}</div>`:""}</div></article>`).join("");
-    case "hobbies":return `<h2>Hobbies</h2><div class="rule"></div><div class="rows">`+
+    case "hobbies":return `<h2>${t("hobbies")}</h2><div class="rule"></div><div class="rows">`+
       HOBBIES.map((h,i)=>{const url=h.link&&LINKS[h.link];return `<div class="row" data-i="${i}"><b>${esc(h.name)}</b><span>${esc(h.note)}</span>`+
-        (url?`<a class="copy" href="${esc(url)}" target="_blank" rel="noopener">${esc(h.linkLabel)} ↗</a>`:h.link?`<span class="soon">link coming soon</span>`:`<span></span>`)+`</div>`;}).join("")+`</div>`;
-    case "referrals":return `<h2>Referrals</h2><p class="lede">The managers who supervised my two internships.</p><div class="rule"></div>`+
+        (url?`<a class="copy" href="${esc(url)}" target="_blank" rel="noopener">${esc(h.linkLabel)} ↗</a>`:h.link?`<span class="soon">${t("soon")}</span>`:`<span></span>`)+`</div>`;}).join("")+`</div>`;
+    case "referrals":return `<h2>${t("referrals")}</h2><p class="lede">${t("refLede")}</p><div class="rule"></div>`+
       REFS.map(r=>`<article class="entry"><div class="when">${esc(r.org)}</div><div><h3>${esc(r.name)}</h3><div class="org">${esc(r.role)}, ${esc(r.org)}</div>
-        <button class="back" data-jump="${r.link.to}" data-idx="${r.link.idx}">See the ${esc(r.org)} internship →</button></div></article>`).join("")+
-      `<p class="small">Ask me for their contact details.</p>`;
+        <button class="back" data-jump="${r.link.to}" data-idx="${r.link.idx}">${t("seeIntern").replace("{org}",esc(r.org))}</button></div></article>`).join("")+
+      `<p class="small">${t("refSmall")}</p>`;
   }}
 function openPanel(s,focus){
   sheet.setAttribute("aria-label",s.label);
-  sheet.innerHTML=`<div class="bar"><span class="crumb">CV / ${s.label}</span><button class="back" id="back">← Back to the CV</button></div>${panelBody(s.id)}`;
+  sheet.innerHTML=`<div class="bar"><span class="crumb">CV / ${s.label}</span><button class="back" id="back">${t("backCV")}</button></div>${panelBody(s.id)}`;
   scrim.hidden=false;sheet.scrollTop=0;
   sheet.querySelector("#back").onclick=closePanel;
   if(s.id==="skills")renderSkill();
   if(s.id==="contact")sheet.querySelector("#cp").onclick=e=>{const m=sheet.querySelector("#mail"),b=e.currentTarget;
-    navigator.clipboard.writeText(m.textContent).then(()=>b.textContent="Copied").catch(()=>{const r=document.createRange();r.selectNodeContents(m);getSelection().removeAllRanges();getSelection().addRange(r);});};
+    navigator.clipboard.writeText(m.textContent).then(()=>b.textContent=t("copied")).catch(()=>{const r=document.createRange();r.selectNodeContents(m);getSelection().removeAllRanges();getSelection().addRange(r);});};
   if(focus!=null){const el=sheet.querySelector(`[data-i="${focus}"]`);if(el){el.classList.add("flash");el.scrollIntoView({block:"center"});setTimeout(()=>el.classList.remove("flash"),1800);}}
   sheet.querySelector("#back").focus({preventScroll:true});}
 sheet.addEventListener("click",e=>{const st=e.target.closest("[data-step]"),pk=e.target.closest("[data-pick]"),jp=e.target.closest("[data-jump]");
@@ -610,9 +804,9 @@ sheet.addEventListener("click",e=>{const st=e.target.closest("[data-step]"),pk=e
   else if(jp)jumpTo(jp.dataset.jump,+jp.dataset.idx);});
 function stepSkill(d){skillIdx=(skillIdx+d+SKILLS.length)%SKILLS.length;renderSkill();}
 function renderSkill(){const box=sheet.querySelector("#skc");if(!box)return;const s=SKILLS[skillIdx];
-  box.innerHTML=`<div class="n">Skill ${skillIdx+1} of ${SKILLS.length}</div><div class="name">${esc(s.name)}</div>
+  box.innerHTML=`<div class="n">${t("skillN").replace("{n}",skillIdx+1).replace("{m}",SKILLS.length)}</div><div class="name">${esc(s.name)}</div>
     <div class="lvl">${[1,2,3,4,5].map(n=>`<i class="${n<=s.level?"on":""}"></i>`).join("")}<em>${s.levelName||LEVEL_NAMES[s.level]}</em></div>
-    <div class="src"><small>Acquired through</small><button class="go" data-jump="${s.from.to}" data-idx="${s.from.idx}">${esc(s.from.label)} →</button></div>`;
+    <div class="src"><small>${t("acquired")}</small><button class="go" data-jump="${s.from.to}" data-idx="${s.from.idx}">${esc(s.from.label)} →</button></div>`;
   box.style.animation="none";void box.offsetWidth;box.style.animation="";
   sheet.querySelectorAll("[data-pick]").forEach(b=>b.setAttribute("aria-current",+b.dataset.pick===skillIdx?"true":"false"));}
 /* ================= start screen, PDF viewer, message form ================= */
@@ -621,7 +815,7 @@ let layerOpen="start",layerBack=null,lastFocus=null;
 if(coarse)document.getElementById("touchHint").hidden=false;
 function showLayer(name,back=null){for(const k in LAYERS)LAYERS[k].hidden=k!==name;layerOpen=name;layerBack=back;keys.clear();
   if(name==="msg"&&!document.getElementById("msgSent").hidden){document.getElementById("msgDone").hidden=true;document.getElementById("msgFormWrap").hidden=false;document.getElementById("msgSent").hidden=true;}
-  if(name==="pdf")LAYERS.pdf.querySelectorAll("img[data-src]").forEach(im=>{if(!im.src)im.src=im.dataset.src;});
+  if(name==="pdf")setPdf(true);
   if(name){const f=name==="msg"&&!document.getElementById("msgFormWrap").hidden?document.getElementById("msgName"):LAYERS[name].querySelector(".btn.primary,[data-close]");f&&f.focus({preventScroll:true});}
   else if(lastFocus&&document.contains(lastFocus))lastFocus.focus({preventScroll:true});}
 function closeLayer(){showLayer(layerBack,null);}
@@ -633,45 +827,73 @@ for(const k in LAYERS){LAYERS[k].addEventListener("click",e=>{if(e.target.closes
 // download the PDF where the viewer allows it; the "open in a new tab" link stays as the other route
 const dlBtn=document.getElementById("dlBtn"),dlStatus=document.getElementById("dlStatus");let downloads=null;
 try{window.claude?.use?.("downloads")?.then(d=>{downloads=d;dlBtn.hidden=!d;}).catch(()=>{});}catch(_){}
-dlBtn.onclick=async()=>{if(!downloads)return;dlStatus.textContent="Preparing the file…";
-  try{const r=await fetch("cv/Shalom-Antony-CV.pdf");if(!r.ok)throw{code:"unavailable"};const blob=await r.blob();
-    await downloads.save({filename:"Shalom-Antony-CV.pdf",data:blob});dlStatus.textContent="Saved: Shalom-Antony-CV.pdf";}
-  catch(err){const c=err&&err.code;dlStatus.textContent=c==="declined"?"Download cancelled.":c==="rate_limited"?"A save prompt is already open.":"The download isn't available here. Use “Open in a new tab” instead.";
+dlBtn.onclick=async()=>{if(!downloads)return;dlStatus.textContent=t("dlPreparing");
+  try{const P=PDFS[LANG],r=await fetch(P.file);if(!r.ok)throw{code:"unavailable"};const blob=await r.blob();
+    await downloads.save({filename:P.name,data:blob});dlStatus.textContent=t("dlSaved")+P.name;}
+  catch(err){const c=err&&err.code;dlStatus.textContent=t(c==="declined"?"dlCancel":c==="rate_limited"?"dlBusy":"dlUnavailable");
     if(c&&c!=="declined"&&c!=="rate_limited")dlBtn.hidden=true;}};
 // the message form builds an email for the visitor's own email app; nothing is sent from this page
 const TO="shalom.antony@audencia.com",msgForm=document.getElementById("msgForm"),msgErr=document.getElementById("msgErr");
 function composeMail(){const v=id=>document.getElementById(id).value.trim(),type=document.getElementById("msgTypeReview").checked?"review":"job",name=v("msgName"),email=v("msgEmail"),body=v("msgBody");
-  const subject=(type==="job"?"Job offer":"Review")+" for Shalom Antony, from "+name;
+  const subject=t(type==="job"?"subjJob":"subjReview")+name;
   const text=body+"\n\n"+name+"\n"+email;return{type,name,email,body,subject,text};}
 /* Web3Forms sends the message to Shalom's inbox. Paste the access key from web3forms.com between the quotes.
    Without a key, or if sending fails, the visitor gets the email-app fallback instead. */
 const WEB3FORMS_KEY="8abaeec8-f776-496a-b8cc-8f5d3b06b306";
 const hasKey=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(WEB3FORMS_KEY.trim());
-if(!hasKey){document.getElementById("msgLede").innerHTML="Write your message here. It opens in your email app, addressed to <b>shalom.antony@audencia.com</b> and ready to send.";document.getElementById("msgSend").textContent="Open in my email app";}
 async function sendWeb3(m){try{const r=await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
-    body:JSON.stringify({access_key:WEB3FORMS_KEY.trim(),subject:m.subject,from_name:"Shalom's interactive CV",replyto:m.email,name:m.name,email:m.email,about:m.type==="job"?"Job offer":"Review",message:m.body,botcheck:false})});
+    body:JSON.stringify({access_key:WEB3FORMS_KEY.trim(),subject:m.subject,from_name:t("fromName"),replyto:m.email,name:m.name,email:m.email,about:t(m.type==="job"?"job":"review"),message:m.body,botcheck:false})});
   const j=await r.json().catch(()=>({}));return r.ok&&j.success===true;}catch(_){return false;}}
 function showDone(kind,m,lead){const mailto="mailto:"+TO+"?subject="+encodeURIComponent(m.subject)+"&body="+encodeURIComponent(m.text);
-  document.getElementById("msgPreview").textContent="Subject: "+m.subject+"\n\n"+m.text;document.getElementById("msgMailto").href=mailto;
-  document.getElementById("msgReplyTo").textContent=m.email;document.getElementById("msgSent").hidden=kind!=="sent";
+  document.getElementById("msgPreview").textContent=t("subjectLabel")+m.subject+"\n\n"+m.text;document.getElementById("msgMailto").href=mailto;
+  document.getElementById("msgSentText").innerHTML=esc(t("sent")).replace("{email}","<b>"+esc(m.email)+"</b>");document.getElementById("msgSent").hidden=kind!=="sent";
   document.getElementById("msgFallback").hidden=kind==="sent";document.getElementById("msgCopy").hidden=kind==="sent";
   if(lead)document.getElementById("msgFallbackLead").textContent=lead;
   document.getElementById("msgEdit").hidden=kind==="sent";
   document.getElementById("msgFormWrap").hidden=true;document.getElementById("msgDone").hidden=false;LAYERS.msg.querySelector("#msgDone [data-close]").focus();return mailto;}
 let sending=false;
 msgForm.addEventListener("submit",async e=>{e.preventDefault();if(sending)return;const m=composeMail();
-  const problem=!m.name?"Add your name.":!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email)?"Add a valid email address, like name@company.com.":!m.body?"Write a message before sending.":"";
+  const problem=!m.name?t("errName"):!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email)?t("errEmail"):!m.body?t("errBody"):"";
   msgErr.hidden=!problem;msgErr.textContent=problem;if(problem)return;
   if(document.getElementById("msgBot").checked){showDone("sent",m);return;}
-  if(!hasKey){const mailto=showDone("fallback",m,"Your email app should now show your message, addressed to Shalom. Press send there to deliver it.");
+  if(!hasKey){const mailto=showDone("fallback",m,t("fbNoKey"));
     const a=document.createElement("a");a.href=mailto;a.target="_blank";a.rel="noopener";document.body.appendChild(a);try{a.click();}catch(_){}a.remove();return;}
-  const btn=document.getElementById("msgSend");sending=true;btn.disabled=true;btn.textContent="Sending…";
-  const ok=await sendWeb3(m);sending=false;btn.disabled=false;btn.textContent="Send message";
+  const btn=document.getElementById("msgSend");sending=true;btn.disabled=true;btn.textContent=t("sending");
+  const ok=await sendWeb3(m);sending=false;btn.disabled=false;btn.textContent=t("send");
   if(ok){showDone("sent",m);msgForm.reset();}
-  else showDone("fallback",m,"The message couldn't be sent from this page. You can send it from your own email app instead; nothing you wrote is lost.");});
+  else showDone("fallback",m,t("fbFail"));});
 document.getElementById("msgEdit").onclick=()=>{document.getElementById("msgEdit").hidden=false;document.getElementById("msgDone").hidden=true;document.getElementById("msgFormWrap").hidden=false;document.getElementById("msgBody").focus();};
 LAYERS.msg.addEventListener("click",e=>{const b=e.target.closest("[data-copy]");if(!b)return;const el=document.getElementById(b.dataset.copy);
-  navigator.clipboard.writeText(el.textContent).then(()=>b.textContent="Copied").catch(()=>{const r=document.createRange();r.selectNodeContents(el);getSelection().removeAllRanges();getSelection().addRange(r);});});
+  navigator.clipboard.writeText(el.textContent).then(()=>b.textContent=t("copied")).catch(()=>{const r=document.createRange();r.selectNodeContents(el);getSelection().removeAllRanges();getSelection().addRange(r);});});
+
+/* ================= language ================= */
+const langBtn=document.getElementById("langBtn");
+function setPdf(load){const P=PDFS[LANG];document.getElementById("pdfTtl").textContent=P.name+" · "+t("pages");document.getElementById("pdfOpen").href=P.file;
+  const a=document.getElementById("pdfImg1"),b=document.getElementById("pdfImg2");a.alt=t("img1");b.alt=t("img2");
+  if(load||a.getAttribute("src")){a.src=P.pages[0];b.src=P.pages[1];}}
+function applyLang(l){LANG=l==="fr"?"fr":"en";const D=DATA[LANG];
+  ({EXP,EDU,LEVEL_NAMES,SKILLS,PROJECTS,REFS,HOBBIES,ROLES,PROFILE}=D);
+  SECS.forEach(s=>Object.assign(s,SEC_TEXT[LANG][s.id]));
+  document.documentElement.lang=LANG;document.title=t("docTitle");
+  document.querySelectorAll("[data-t]").forEach(el=>{el.textContent=t(el.dataset.t);});
+  document.querySelectorAll("[data-th]").forEach(el=>{el.innerHTML=t(el.dataset.th);});
+  document.querySelectorAll("[data-ta]").forEach(el=>{const[a,k]=el.dataset.ta.split(":");el.setAttribute(a,t(k));});
+  document.querySelectorAll("nav [data-sec]").forEach(b=>{b.textContent=byId(b.dataset.sec).label;});
+  document.querySelectorAll(".lp").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===LANG?"true":"false"));
+  langBtn.textContent=t("langSwitch");langBtn.lang=LANG==="fr"?"en":"fr";
+  if(coarse)document.getElementById("hint").textContent=t("hintTouch");
+  flipBtn.textContent=t(side==="back"?"flipToCV":"flipToCard");
+  document.getElementById("msgLede").innerHTML=hasKey?esc(t("msgLede")):t("msgLedeNoKey");
+  if(!sending)document.getElementById("msgSend").textContent=t(hasKey?"send":"sendNoKey");
+  document.getElementById("msgFallbackLead").textContent=t("fbNoKey");
+  setPdf(false);skillIdx=Math.min(skillIdx,SKILLS.length-1);
+  roleQ=shuffle(ROLES.slice());roleK=0;roleT0=performance.now()/1000;
+  if(mode==="panel"&&cur)openPanel(cur,null);
+  try{localStorage.setItem("cvLang",LANG);}catch(_){}}
+document.querySelectorAll(".lp").forEach(b=>b.addEventListener("click",()=>applyLang(b.dataset.lang)));
+langBtn.addEventListener("click",()=>applyLang(LANG==="fr"?"en":"fr"));
+{let saved=null;try{saved=localStorage.getItem("cvLang");}catch(_){}
+  applyLang(saved||((navigator.language||"").toLowerCase().startsWith("fr")?"fr":"en"));}
 document.getElementById("playBtn").focus({preventScroll:true});
 </script>
 
