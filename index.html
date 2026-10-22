@@ -645,7 +645,7 @@ function composeMail(){const v=id=>document.getElementById(id).value.trim(),type
   const text=body+"\n\n"+name+"\n"+email;return{type,name,email,body,subject,text};}
 /* Web3Forms sends the message to Shalom's inbox. Paste the access key from web3forms.com between the quotes.
    Without a key, or if sending fails, the visitor gets the email-app fallback instead. */
-const WEB3FORMS_KEY="PASTE_YOUR_ACCESS_KEY_HERE";
+const WEB3FORMS_KEY="8abaeec8-f776-496a-b8cc-8f5d3b06b306";
 const hasKey=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(WEB3FORMS_KEY.trim());
 if(!hasKey){document.getElementById("msgLede").innerHTML="Write your message here. It opens in your email app, addressed to <b>shalom.antony@audencia.com</b> and ready to send.";document.getElementById("msgSend").textContent="Open in my email app";}
 async function sendWeb3(m){try{const r=await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
